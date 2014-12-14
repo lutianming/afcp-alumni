@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
+
+{% block content %}
+    <form method="post" action="{{ url_for('update_info') }}">
+	<fieldset>
+	    {{ form.hidden_tag() }}
+	    {{ render_field(form.email)}}
+	    {{ render_field(form.sex) }}
+	    {{ render_field(form.lastname) }}
+	    {{ render_field(form.firstname) }}
+	    {{ render_field(form.chinesename)}}
+	    {{ render_field(form.birthday)}}
+	    {{ render_field(form.country)}}
+	    {{ render_field(form.address)}}
+	    {{ render_field(form.weibo)}}
+	    {{ render_field(form.weixin)}}
+	    {{ render_field(form.phone)}}
+	    {{ render_field(form.chinese_university)}}
+	    {{ render_field(form.paristech_school)}}
+	    {{ render_field(form.paristech_entrance_year)}}
+	    {{ render_field(form.domain_china)}}
+	    {{ render_field(form.domain_france)}}
+	    {{ render_field(form.employer)}}
+	</fieldset>
+	<input type="submit" value="update_info">
+    </form>
+{% endblock content %}

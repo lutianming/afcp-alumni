@@ -11,7 +11,6 @@ For example the *say_hello* handler, handling the URL route '/hello/<username>',
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
-
 from flask import request, render_template, flash, url_for, redirect
 
 from flask_cache import Cache
@@ -19,7 +18,7 @@ import flask_login
 from flask_login import current_user
 from application import app
 from decorators import login_required, admin_required
-from forms import LoginForm
+from forms import LoginForm, ChangePasswordForm, MemberInfoForm
 from models import MemberModel
 
 
@@ -28,7 +27,6 @@ cache = Cache(app)
 
 
 def home():
-    print(current_user)
     members = MemberModel.query()
     return render_template('index.html', members=members)
 
@@ -45,15 +43,58 @@ def login():
                                    MemberModel.password == password).get()
 
         if member:
-            result = flask_login.login_user(member, remember=remember)
-            print(result)
+            flask_login.login_user(member, remember=remember)
     return redirect(url_for('home'))
 
 
 @app.route('/logout', methods=['GET', 'POST'])
+@login_required
 def logout():
     flask_login.logout_user()
     return redirect(url_for('home'))
+
+@app.route('/personal')
+@login_required
+def personal():
+    return render_template('personal.html')
+
+
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        oldpassword = form.old_password.data
+        newpassword = form.new_password.data
+        comfirm = form.comfirm_password.data
+        if oldpassword == current_user.password and \
+           newpassword == comfirm:
+            current_user.password = newpassword
+            current_user.put()
+            flash('password changed')
+        else:
+            if oldpassword != current_user.password:
+                flash('wrong password')
+            if newpassword != comfirm:
+                flash('new password not comfirmed')
+    return render_template('change_password.html', form=form)
+
+
+@app.route('/update_info', methods=['GET', 'POST'])
+@login_required
+def update_info():
+    form = MemberInfoForm(request.form, obj=current_user)
+    if request.method == 'POST' and form.validate():
+        for field in form:
+            setattr(current_user, field.name, field.data)
+        current_user.put()
+        flash('info updated')
+    return render_template('update_info.html', form=form)
+
+@app.route('/members')
+def members():
+    members = MemberModel.query()
+    return render_template('members.html', members=members)
 
 @app.route('/member/<urlsafe>')
 def member(urlsafe):
@@ -62,9 +103,13 @@ def member(urlsafe):
     return render_template('member.html', member=member)
 
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/search')
 def search():
-    return redirect(url_for('home'))
+    q = request.args.get('q', '')
+    members = MemberModel.query(ndb.OR(MemberModel.lastname == q,
+                                       MemberModel.firstname == q))
+    return render_template('index.html', members=members)
+
 
 def say_hello(username):
     """Contrived example to demonstrate Flask's url routing capabilities"""
@@ -75,6 +120,11 @@ def say_hello(username):
 def admin_only():
     """This view requires an admin account"""
     return 'Super-seekrit admin page.'
+
+
+@app.route('/upload_member_file')
+def upload_member_file():
+    pass
 
 
 @cache.cached(timeout=60)

@@ -38,10 +38,11 @@ else:
 # Enable jinja2 loop controls extension
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
-from admin import NdbModelView
+from admin import NdbModelView, FileView
 from models import MemberModel
 admin = Admin(app)
-admin.add_view(NdbModelView(MemberModel, name='members'))
+admin.add_view(NdbModelView(MemberModel, name='members', endpoint='members'))
+admin.add_view(FileView(name='files', endpoint='files'))
 
 loginManager = LoginManager()
 loginManager.init_app(app)

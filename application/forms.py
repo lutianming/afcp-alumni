@@ -25,16 +25,25 @@ ExampleForm = model_form(ExampleModel, wtf.Form, field_args={
     'example_description': dict(validators=[validators.Required()]),
 })
 
+
 class LoginForm(wtf.Form):
     username = wtf.TextField('username',
                              validators=[validators.Required()])
     password = wtf.PasswordField('password',
                                  validators=[validators.Required()])
     remember = wtf.BooleanField('remember')
-    
-class MemberForm(wtf.Form):
-    username = wtf.TextField('username', validators=[validators.Required()])
-    password = wtf.PasswordField('password', validators=[validators.Required()])
+
+
+class ChangePasswordForm(wtf.Form):
+    old_password = wtf.PasswordField('old password',
+                                     validators=[validators.Required()])
+    new_password = wtf.PasswordField('new password',
+                                     validators=[validators.Required()])
+    comfirm_password = wtf.PasswordField('comfirm new passowd',
+                                         validators=[validators.Required()])
+
+
+class MemberInfoForm(wtf.Form):
     sex = wtf.SelectField('sex',
                           choices=[('male', 'male'), ('female', 'female')],
                           validators=[validators.Required()])
@@ -47,15 +56,20 @@ class MemberForm(wtf.Form):
                                                   ('france', 'france')],
                               validators=[validators.Required()])
     address = wtf.TextField('address')
-    email = wtf.TextField('email', validators=[validators.Required(), validators.Email()])
+    email = wtf.TextField('email',
+                          validators=[validators.Required(), validators.Email()])
     weibo = wtf.TextField('weibo')
     weixin = wtf.TextField('weixin')
     phone = wtf.TextField('phone')
 
-    chineseUniversity = wtf.TextField('chinese university')
-    paristechSchool = wtf.TextField('paristech shool')
-    paristechEntranceYear = wtf.TextField('paristech entrance year')
-    domainChina = wtf.TextField('domain in China')
-    domainFrance = wtf.TextField('domain in France')
+    chinese_university = wtf.TextField('chinese university')
+    paristech_school = wtf.TextField('paristech shool')
+    paristech_entrance_year = wtf.TextField('paristech entrance year')
+    domain_china = wtf.TextField('domain in China')
+    domain_france = wtf.TextField('domain in France')
 
     employer = wtf.TextField('employer')
+
+class MemberForm(MemberInfoForm):
+    username = wtf.TextField('username', validators=[validators.Required()])
+    password = wtf.PasswordField('password', validators=[validators.Required()])

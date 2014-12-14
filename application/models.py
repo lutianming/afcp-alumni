@@ -18,27 +18,27 @@ class ExampleModel(ndb.Model):
 
 
 class MemberModel(ndb.Model):
-    username = ndb.StringProperty(required=True)
-    password = ndb.StringProperty(required=True)
-    role = ndb.StringProperty(required=True)
+    username = ndb.StringProperty()
+    password = ndb.StringProperty()
+    role = ndb.StringProperty()
     
-    sex = ndb.StringProperty(required=True)
-    lastname = ndb.StringProperty(required=True)
-    firstname = ndb.StringProperty(required=True)
+    sex = ndb.StringProperty()
+    lastname = ndb.StringProperty()
+    firstname = ndb.StringProperty()
     chinesename = ndb.StringProperty()
     birthday = ndb.DateProperty()
     country = ndb.StringProperty()
     address = ndb.StringProperty()
-    email = ndb.StringProperty(required=True)
+    email = ndb.StringProperty()
     weibo = ndb.StringProperty()
     weixin = ndb.StringProperty()
     phone = ndb.StringProperty()
     
-    chineseUniversity = ndb.StringProperty(required=True)
-    paristechSchool = ndb.StringProperty(required=True)
-    paristechEntranceYear = ndb.StringProperty(required=True)
-    domainChina = ndb.StringProperty()
-    domainFrance = ndb.StringProperty()
+    chinese_university = ndb.StringProperty()
+    paristech_school = ndb.StringProperty()
+    paristech_entrance_year = ndb.StringProperty()
+    domain_china = ndb.StringProperty()
+    domain_france = ndb.StringProperty()
     employer = ndb.StringProperty()
 
     def is_authenticated(self):

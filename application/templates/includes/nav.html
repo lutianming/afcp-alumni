@@ -7,16 +7,15 @@
 	    <span class="icon-bar"></span>
 	    <span class="icon-bar"></span>
 	</button>
-	<a class="navbar-brand" href="#">AFCP Alumni</a>
+	<a class="navbar-brand" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='img/afcp_logo.jpg') }}"></img></a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	<ul class="nav navbar-nav">
-
-	    <li class="active"><a href="#">Link</a></li>
-	    <form method="post" action="{{ url_for('search') }}" class="navbar-search pull-left">
-		<input name="search" type="text" class="search-query" placeholder="Search">
+	    <li><a href="{{ url_for('members') }}">Members</a></li>
+	    <form action="{{ url_for('search') }}" class="navbar-search pull-left">
+		<input name="q" type="text" class="search-query" placeholder="Search">
 	    </form>
 
 	    <li class="dropdown">
@@ -36,17 +35,8 @@
 	<ul class="nav navbar-nav navbar-right">
 	    {% if current_user.is_authenticated() %}
 		<p class="navbar-text">hi {{ current_user.username }}</p>
+		<li><a href="{{ url_for('personal') }}">account</a></li>
 		<li><a href="{{ url_for('logout') }}">logout</a></li>
-		<li class="dropdown">
-		    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-		    <ul class="dropdown-menu">
-			<li><a href="#">Action</a></li>
-			<li><a href="#">Another action</a></li>
-			<li><a href="#">Something else here</a></li>
-			<li class="divider"></li>
-			<li><a href="#">Separated link</a></li>
-		    </ul>
-		</li>	    
 	    {% else %}
 		<form method="post" action="{{ url_for('login') }}" class="form-inline">
 		    <input name="username" type="text" class="input-small" placeholder="username">

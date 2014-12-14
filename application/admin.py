@@ -1,8 +1,11 @@
-from flask import request
+from flask import request, flash
+from flask_admin import BaseView, expose
 from flask_admin.model import BaseModelView
 from google.appengine.ext import ndb
 from forms import MemberForm
 from models import MemberModel
+import xlrd
+
 
 class NdbModelView(BaseModelView):
     can_create = True
@@ -30,7 +33,7 @@ class NdbModelView(BaseModelView):
         return key.get()
 
     def edit_form(self, obj=None):
-        form = super(NdbModel, self).edit_form(obj)
+        form = super(NdbModelView, self).edit_form(obj)
         if request.method == 'GET':
             form.fr.title.data = obj.meta['fr']['title']
             form.fr.content.data = obj.meta['fr']['content']
@@ -54,11 +57,11 @@ class NdbModelView(BaseModelView):
             weibo=form.weibo.data,
             weixin=form.weixin.data,
 
-            chineseUniversity=form.chineseUniversity.data,
-            paristechSchool=form.paristechSchool.data,
-            paristechEntranceYear=form.paristechEntranceYear.data,
-            domainChina=form.domainChina.data,
-            domainFrance=form.domainFrance.data,
+            chinese_university=form.chinese_university.data,
+            paristech_school=form.paristech_school.data,
+            paristech_entrance_year=form.paristech_entrance_year.data,
+            domain_china=form.domain_china.data,
+            domain_france=form.domain_france.data,
         )
         member.put()
         return True
@@ -90,3 +93,32 @@ class NdbModelView(BaseModelView):
         return True
 
     
+class FileView(BaseView):
+    @expose('/')
+    def index(self):
+        return self.render('admin/file.html')
+
+    @expose('/upload')
+    def upload(self):
+        file = request.files[0]
+        data = xlrd.open_workbook(file)
+        sheet = data.sheets()[0]
+        columns = ['lastname', 'firstname', 'sex', 'chinesename',
+                   'birthday', 'paristech_entrance_year',
+                   'paristech_school', 'chinese_university',
+                   'scholarship', 'domain_france', 'domain_china',
+                   'other_diploma', 'diploma_school',
+                   'first_employer_country', 'internship',
+                   'first_employer', 'current_employer_country',
+                   'employer', 'email', 'phone', 'address_plus',
+                   'address', 'resident', 'weibo', 'weixin', 'remark']
+        for i in range(1, sheet.nrows):
+            row = sheet.row_values(i)
+            member = MemberModel()
+            for i, v in enumerate(columns):
+                if hasattr(member, v):
+                    setattr(member, v, row[i])
+            member.put()
+        flash('uploaded')
+        return self.render('admin/file.html')
+        
