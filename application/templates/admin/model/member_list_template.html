@@ -1,0 +1,9 @@
+{% extends 'admin/model/list.html' %}
+
+{% block body %}
+    <form action="{{ url_for('members.upload') }}" method=post enctype=multipart/form-data>
+	<input type=file name=file>
+        <input type=submit value=Upload>
+    </form>
+    {{ super() }}
+{% endblock %}

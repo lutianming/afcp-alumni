@@ -1,22 +1,46 @@
-from flask import request, flash
+from flask import request, flash, redirect, url_for
 from flask_admin import BaseView, expose
 from flask_admin.model import BaseModelView
 from google.appengine.ext import ndb
+from google.appengine.api import search, mail
 from forms import MemberForm
 from models import MemberModel
 import xlrd
+import datetime
+import re
 
 
+def create_document(member):
+    document = search.Document(
+        doc_id=member.key.urlsafe(),
+        fields=[
+            search.TextField(name='name',
+                             value=member.lastname+' '+member.firstname),
+            search.TextField(name='chinesename',
+                             value=member.chinesename)
+            ]
+        )
+    return document
+
+
+def update_member(member):
+    member.put()
+    document = create_document(member)
+    index = search.Index(name='members')
+    index.put(document)
+
+    
 class NdbModelView(BaseModelView):
     can_create = True
     can_edit = True
     can_delete = True
+
+    list_template = 'admin/model/member_list_template.html'
+    column_list = ['lastname', 'firstname', 'chinesename', 'role']
+    page_size = 20
     
     def get_pk_value(self, model):
         return model.key.urlsafe()
-
-    def scaffold_list_columns(self):
-        return self.model._properties
 
     def scaffold_sortable_columns(self):
         return None
@@ -26,20 +50,18 @@ class NdbModelView(BaseModelView):
     
     def get_list(self, page, sort_column, sort_desc, search, filters,
                  execute=True):
-        return 1, self.model.query()
+        query = self.model.query()
+        if page is not None:
+            result = query.fetch(self.page_size,
+                                 offset=page*self.page_size)
+        else:
+            result = query.fetch(self.page_size)
+            
+        return query.count(), result
 
     def get_one(self, urlsafe):
         key = ndb.Key(urlsafe=urlsafe)
         return key.get()
-
-    def edit_form(self, obj=None):
-        form = super(NdbModelView, self).edit_form(obj)
-        if request.method == 'GET':
-            form.fr.title.data = obj.meta['fr']['title']
-            form.fr.content.data = obj.meta['fr']['content']
-            form.zh.title.data = obj.meta['zh']['title']
-            form.zh.content.data = obj.meta['zh']['content']
-        return form
 
     def create_model(self, form):
         member = MemberModel(
@@ -63,35 +85,122 @@ class NdbModelView(BaseModelView):
             domain_china=form.domain_china.data,
             domain_france=form.domain_france.data,
         )
-        member.put()
+        update_member(member)
         return True
     
     def update_model(self, form, model):
-        model.username = form.username.data,
-        model.password = form.password.data,
-        model.sex = form.sex.data,
-        model.lastname = form.lastname.data,
-        model.firstname = form.firstname.data,
-        model.chinesename = form.chinesename.data,
-        model.birthday = form.birthday.data,
-        model.country = form.country.data,
-        model.address = form.address.data,
-        model.email = form.email.data,
-        model.weibo = form.weibo.data,
-        model.weixin = form.weixin.data,
+        model.username = form.username.data
+        model.password = form.password.data
+        model.sex = form.sex.data
+        model.lastname = form.lastname.data
+        model.firstname = form.firstname.data
+        model.chinesename = form.chinesename.data
+        model.birthday = form.birthday.data
+        model.country = form.country.data
+        model.address = form.address.data
+        model.email = form.email.data
+        model.weibo = form.weibo.data
+        model.weixin = form.weixin.data
 
-        model.chineseUniversity = form.chineseUniversity.data,
-        model.paristechSchool = form.paristechSchool.data,
-        model.paristechEntranceYear = form.paristechEntranceYear.data,
-        model.domainChina = form.domainChina.data,
-        model.domainFrance = form.domainFrance.data,
-        model.put()
+        model.chinese_university = form.chinese_university.data
+        model.paristech_school = form.paristech_school.data
+        model.paristech_entrance_year = form.paristech_entrance_year.data
+        model.domain_china = form.domain_china.data
+        model.domain_france = form.domain_france.data
+        update_member(model)
         return True
     
     def delete_model(self, model):
+        index = search.Index(name='members')
+        index.delete(model.key.urlsafe())
         model.key.delete()
         return True
 
+    @expose('/upload/', methods=['GET', 'POST'])
+    def upload(self):
+        for k, f in request.files.items():
+            book = xlrd.open_workbook(file_contents=f.read())
+            sheet = book.sheets()[0]
+            columns = ['lastname', 'firstname', 'sex', 'chinesename',
+                       'birthday', 'paristech_entrance_year',
+                       'paristech_school', 'chinese_university',
+                       'scholarship', 'domain_france', 'domain_china',
+                       'other_diploma', 'diploma_school',
+                       'first_employer_country', 'internship',
+                       'first_employer', 'current_employer_country',
+                       'employer', 'email', 'phone', 'address_plus',
+                       'address', 'resident', 'weibo', 'weixin', 'remark']
+            rows = []
+            for i in range(1, sheet.nrows):
+                print(i)
+                row = sheet.row_values(i)
+                member = MemberModel()
+                for i, column in enumerate(columns):
+                    if hasattr(member, column):
+                        data = row[i]
+                        print(column, data)
+                        
+                        if not data:
+                            continue
+                        
+                        if column == 'birthday':
+                            try:
+                                if isinstance(data, float):
+                                    t = xlrd.xldate_as_tuple(data, book.datemode)
+                                    date = datetime.date(t[0], t[1], t[2])
+                                else:
+                                    tokens = re.findall('[0-9]+', data)
+                                    if len(tokens) < 3:
+                                        continue
+                                        day = int(tokens[0])
+                                        month = int(tokens[1])
+                                        year = int(tokens[2])
+                                        date = datetime.date(year, month, day)
+                                        setattr(member, column, date)
+                            except Exception as e:
+                                pass
+                        elif column == 'paristech_entrance_year':
+                            setattr(member, column, int(data))
+                        elif column == 'phone':
+                            if isinstance(data, float):
+                                setattr(member, column, str(int(data)))
+                            else:
+                                setattr(member, column, data)
+                        elif column == 'weixin':
+                            if isinstance(data, float):
+                                setattr(member, column, str(int(data)))
+                            else:
+                                setattr(member, column, data)
+                        elif column == 'address':
+                            if isinstance(data, float):
+                                setattr(member, column, str(int(data)))
+                            else:
+                                setattr(member, column, data)
+                        elif column == 'email':
+                            if isinstance(data, float):
+                                setattr(member, column, str(int(data)))
+                            else:
+                                setattr(member, column, data)                          
+                        else:
+                            setattr(member, column, data)
+                update_member(member)
+        return redirect(url_for('members.index_view'))
+
+    @expose('/invite/<urlsafe>')
+    def invite(urlsafe):
+        sender = 'admin@afcp-alumni.com'
+        key = ndb.Key(urlsafe=urlsafe)
+        member = key.get()
+        message = mail.EmailMessage(sender=sender)
+        message.to = member.email
+        message.subject = "invitation of AFCP Alumni"
+        message.body = """
+        username: {0}
+        password: {1}
+        """.format(member.email, '123456')
+        message.send()
+        flash('invitation sent')
+        return redirect(url_for('members.index_view'))
     
 class FileView(BaseView):
     @expose('/')
@@ -100,25 +209,6 @@ class FileView(BaseView):
 
     @expose('/upload')
     def upload(self):
-        file = request.files[0]
-        data = xlrd.open_workbook(file)
-        sheet = data.sheets()[0]
-        columns = ['lastname', 'firstname', 'sex', 'chinesename',
-                   'birthday', 'paristech_entrance_year',
-                   'paristech_school', 'chinese_university',
-                   'scholarship', 'domain_france', 'domain_china',
-                   'other_diploma', 'diploma_school',
-                   'first_employer_country', 'internship',
-                   'first_employer', 'current_employer_country',
-                   'employer', 'email', 'phone', 'address_plus',
-                   'address', 'resident', 'weibo', 'weixin', 'remark']
-        for i in range(1, sheet.nrows):
-            row = sheet.row_values(i)
-            member = MemberModel()
-            for i, v in enumerate(columns):
-                if hasattr(member, v):
-                    setattr(member, v, row[i])
-            member.put()
-        flash('uploaded')
+
         return self.render('admin/file.html')
         

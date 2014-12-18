@@ -8,7 +8,7 @@ For example the *say_hello* handler, handling the URL route '/hello/<username>',
   must be passed *username* as the argument.
 
 """
-from google.appengine.api import users
+from google.appengine.api import search as gsearch
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 from flask import request, render_template, flash, url_for, redirect
@@ -106,15 +106,23 @@ def member(urlsafe):
 @app.route('/search')
 def search():
     q = request.args.get('q', '')
-    members = MemberModel.query(ndb.OR(MemberModel.lastname == q,
-                                       MemberModel.firstname == q))
-    return render_template('index.html', members=members)
+    index = gsearch.Index(name='members')
+    results = index.search(q)
+    return render_template('result.html', results=results)
 
+def has_no_empty_params(rule):
+    defaults = rule.defaults if rule.defaults is not None else ()
+    arguments = rule.arguments if rule.arguments is not None else ()
+    return len(defaults) >= len(arguments)
 
-def say_hello(username):
-    """Contrived example to demonstrate Flask's url routing capabilities"""
-    return 'Hello %s' % username
-
+@app.route('/routes')
+def routes():
+    rules = []
+    for rule in app.url_map.iter_rules():
+        if "GET" in rule.methods and has_no_empty_params(rule):
+            url = url_for(rule.endpoint)
+            rules.append(rule.endpoint + ': ' + url)
+    return '</br>'.join(rules)
 
 @admin_required
 def admin_only():
@@ -125,13 +133,6 @@ def admin_only():
 @app.route('/upload_member_file')
 def upload_member_file():
     pass
-
-
-@cache.cached(timeout=60)
-def cached_examples():
-    """This view should be cached for 60 sec"""
-    examples = ExampleModel.query()
-    return render_template('list_examples_cached.html', examples=examples)
 
 
 def warmup():

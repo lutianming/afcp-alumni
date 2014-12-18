@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+	<tr>
+	    <th>name</th>
+	    <th>chinese name</th>
+	</tr>
+    {% for result in results %}
+	<tr>
+	    <td>
+		{% for field in result.fields %}
+		    {% if field.name == 'name' %}
+			<a href="{{ url_for('member', urlsafe=result.doc_id)}}">
+			    {{ field.value}}
+			</a>
+		    {% endif %}
+		{% endfor %}
+	    </td>
+	    <td>
+		{% for field in result.fields %}
+		    {% if field.name == 'chinesename' %}
+			{{ field.value}}
+		    {% endif %}
+		{% endfor %}		
+	    </td>
+	</tr>
+    {% endfor %}
+    </table>
+{% endblock content %}

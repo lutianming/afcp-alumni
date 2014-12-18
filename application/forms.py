@@ -71,5 +71,4 @@ class MemberInfoForm(wtf.Form):
     employer = wtf.TextField('employer')
 
 class MemberForm(MemberInfoForm):
-    username = wtf.TextField('username', validators=[validators.Required()])
     password = wtf.PasswordField('password', validators=[validators.Required()])

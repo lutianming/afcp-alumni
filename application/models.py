@@ -18,7 +18,6 @@ class ExampleModel(ndb.Model):
 
 
 class MemberModel(ndb.Model):
-    username = ndb.StringProperty()
     password = ndb.StringProperty()
     role = ndb.StringProperty()
     
@@ -36,7 +35,7 @@ class MemberModel(ndb.Model):
     
     chinese_university = ndb.StringProperty()
     paristech_school = ndb.StringProperty()
-    paristech_entrance_year = ndb.StringProperty()
+    paristech_entrance_year = ndb.IntegerProperty()
     domain_china = ndb.StringProperty()
     domain_france = ndb.StringProperty()
     employer = ndb.StringProperty()
