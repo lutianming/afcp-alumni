@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for member in members%}
-	<p>{{ member.username }}</p>
-    {% endfor %}
-
+    <table>
+	<tr>
+	    <th>name</th>
+	    <th>chinesename</th>
+	    <th>email</th>
+	</tr>
+	{% for member in members %}
+	    <tr>
+		<td>{{ member.lastname}} {{ member.firstname}}</td>
+		<td>{{ member.chinesename }}</td>
+		<td>{{ member.email }}</td>
+	    </tr>
+	{% endfor %}
+    </table>    
 {% endblock content %}

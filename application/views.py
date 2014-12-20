@@ -20,30 +20,31 @@ from application import app
 from decorators import login_required, admin_required
 from forms import LoginForm, ChangePasswordForm, MemberInfoForm
 from models import MemberModel
-
+import datetime
 
 # Flask-Cache (configured to use App Engine Memcache API)
 cache = Cache(app)
 
 
 def home():
-    members = MemberModel.query()
-    return render_template('index.html', members=members)
+    return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
-        username = form.username.data
+        email = form.username.data
         password = form.password.data
         remember = form.remember.data
 
-        member = MemberModel.query(MemberModel.username == username,
+        member = MemberModel.query(MemberModel.email == email,
                                    MemberModel.password == password).get()
 
         if member:
             flask_login.login_user(member, remember=remember)
+            member.last_login = datetime.datetime.now()
+            member.put()
     return redirect(url_for('home'))
 
 

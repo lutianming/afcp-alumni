@@ -9,17 +9,10 @@ App Engine datastore models
 from google.appengine.ext import ndb
 
 
-class ExampleModel(ndb.Model):
-    """Example Model"""
-    example_name = ndb.StringProperty(required=True)
-    example_description = ndb.TextProperty(required=True)
-    added_by = ndb.UserProperty()
-    timestamp = ndb.DateTimeProperty(auto_now_add=True)
-
-
 class MemberModel(ndb.Model):
     password = ndb.StringProperty()
     role = ndb.StringProperty()
+    last_login = ndb.DateTimeProperty()
     
     sex = ndb.StringProperty()
     lastname = ndb.StringProperty()

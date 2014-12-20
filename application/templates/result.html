@@ -5,26 +5,48 @@
 	<tr>
 	    <th>name</th>
 	    <th>chinese name</th>
+	    <th>email</th>
+	    <th>Op</th>
 	</tr>
-    {% for result in results %}
-	<tr>
-	    <td>
-		{% for field in result.fields %}
-		    {% if field.name == 'name' %}
-			<a href="{{ url_for('member', urlsafe=result.doc_id)}}">
+	{% for result in results %}
+	    {% for field in result.fields %}
+		{% if field.name == 'name' %}
+		    {% set name = field.value %}
+		{% endif %}				
+		{% if field.name == 'chinesename' %}
+		    {% set chinesename = field.value %}
+		{% endif %}
+		{% if field.name == 'email' %}
+		    {% set email = field.value %}
+		{% endif %}		
+	    {% endfor %}
+
+	    <tr>
+		<td>
+		    <a href="{{ url_for('member', urlsafe=result.doc_id)}}">
+			{{ name }}
+		    </a>
+		</td>
+		<td>
+		    {% for field in result.fields %}
+			{% if field.name == 'chinesename' %}
 			    {{ field.value}}
-			</a>
-		    {% endif %}
-		{% endfor %}
-	    </td>
-	    <td>
-		{% for field in result.fields %}
-		    {% if field.name == 'chinesename' %}
-			{{ field.value}}
-		    {% endif %}
-		{% endfor %}		
-	    </td>
-	</tr>
-    {% endfor %}
+			{% endif %}
+		    {% endfor %}		
+		</td>
+		<td>
+		    {% for field in result.fields %}
+			{% if field.name == 'email' %}
+			    {{ field.value}}
+			{% endif %}
+		    {% endfor %}
+		</td>
+		<td>
+		    <a href="{{ url_for('member', urlsafe=result.doc_id)}}">
+			detail
+		    </a>		    
+		</td>
+	    </tr>
+	{% endfor %}
     </table>
 {% endblock content %}

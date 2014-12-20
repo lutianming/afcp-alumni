@@ -34,7 +34,7 @@
 	
 	<ul class="nav navbar-nav navbar-right">
 	    {% if current_user.is_authenticated() %}
-		<p class="navbar-text">hi {{ current_user.username }}</p>
+		<p class="navbar-text">Hi, {{ current_user.firstname }}!</p>
 		<li><a href="{{ url_for('personal') }}">account</a></li>
 		<li><a href="{{ url_for('logout') }}">logout</a></li>
 	    {% else %}

@@ -1,6 +1,7 @@
 from flask import request, flash, redirect, url_for
 from flask_admin import BaseView, expose
 from flask_admin.model import BaseModelView
+from flask_admin.model.helpers import get_mdict_item_or_list
 from google.appengine.ext import ndb
 from google.appengine.api import search, mail
 from forms import MemberForm
@@ -8,6 +9,7 @@ from models import MemberModel
 import xlrd
 import datetime
 import re
+import random
 
 
 def create_document(member):
@@ -17,7 +19,9 @@ def create_document(member):
             search.TextField(name='name',
                              value=member.lastname+' '+member.firstname),
             search.TextField(name='chinesename',
-                             value=member.chinesename)
+                             value=member.chinesename),
+            search.TextField(name='email',
+                             value=member.email)
             ]
         )
     return document
@@ -36,7 +40,10 @@ class NdbModelView(BaseModelView):
     can_delete = True
 
     list_template = 'admin/model/member_list_template.html'
-    column_list = ['lastname', 'firstname', 'chinesename', 'role']
+    column_list = ['email', 'lastname', 'firstname', 'chinesename', 'role', 'last_login']
+    column_searchable_list = ('lastname', 'firstname',
+                              'chinesename', 'email')
+    # column_filters = ('lastname', 'firstname')
     page_size = 20
     
     def get_pk_value(self, model):
@@ -47,10 +54,20 @@ class NdbModelView(BaseModelView):
 
     def scaffold_form(self):
         return MemberForm
+
+    def init_search(self):
+        return True
     
     def get_list(self, page, sort_column, sort_desc, search, filters,
                  execute=True):
-        query = self.model.query()
+        print(page, sort_column, sort_desc, search, filters)
+        if search:
+            query = self.model.query(ndb.OR(self.model.lastname == search,
+                                            self.model.firstname == search,
+                                            self.model.email == search))
+        else:
+            query = self.model.query()
+            
         if page is not None:
             result = query.fetch(self.page_size,
                                  offset=page*self.page_size)
@@ -130,14 +147,22 @@ class NdbModelView(BaseModelView):
                        'first_employer', 'current_employer_country',
                        'employer', 'email', 'phone', 'address_plus',
                        'address', 'resident', 'weibo', 'weixin', 'remark']
-            rows = []
+            count = 0
             for i in range(1, sheet.nrows):
                 print(i)
                 row = sheet.row_values(i)
+                #avoid duplicated user
+                email = row[columns.index('email')]
+                if isinstance(email, float):
+                    email = str(int(email))
+
+                if not email or MemberModel.query(MemberModel.email == email).get():
+                    continue
+
                 member = MemberModel()
-                for i, column in enumerate(columns):
+                for j, column in enumerate(columns):
                     if hasattr(member, column):
-                        data = row[i]
+                        data = row[j]
                         print(column, data)
                         
                         if not data:
@@ -180,35 +205,58 @@ class NdbModelView(BaseModelView):
                             if isinstance(data, float):
                                 setattr(member, column, str(int(data)))
                             else:
-                                setattr(member, column, data)                          
+                                setattr(member, column, data)
                         else:
                             setattr(member, column, data)
                 update_member(member)
+                count += 1
+        flash('imported {0} members'.format(count))
         return redirect(url_for('members.index_view'))
 
-    @expose('/invite/<urlsafe>')
-    def invite(urlsafe):
+    @expose('/invite/', methods=('GET', 'POST'))
+    def invite(self):
+        id = get_mdict_item_or_list(request.args, 'id')
+        member = self.get_one(id)
+        self._invite(member)
+
+        flash('invitation sent')
+        return redirect(url_for('members.index_view'))
+
+
+    @expose('/inviteall')
+    def inviteall(self):
+        members = MemberModel.query(MemberModel.last_login == None)
+        for member in members:
+            self._invite(member)
+        flash('invitations sent')
+        
+        return redirect(url_for('members.index_view'))
+        
+    def _invite(self, member):
+        password = gen_password()
+        print(password)
         sender = 'admin@afcp-alumni.com'
-        key = ndb.Key(urlsafe=urlsafe)
-        member = key.get()
+
+        member.password = password
+        member.put()
+            
         message = mail.EmailMessage(sender=sender)
         message.to = member.email
         message.subject = "invitation of AFCP Alumni"
         message.body = """
         username: {0}
         password: {1}
-        """.format(member.email, '123456')
+        """.format(member.email, password)
         message.send()
-        flash('invitation sent')
-        return redirect(url_for('members.index_view'))
+        return True
+
     
-class FileView(BaseView):
-    @expose('/')
-    def index(self):
-        return self.render('admin/file.html')
-
-    @expose('/upload')
-    def upload(self):
-
-        return self.render('admin/file.html')
-        
+def gen_password(length=6):
+    password = ""
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    l = len(alphabet)
+    for i in range(length):
+        index = random.randrange(l)
+        password += alphabet[index]
+    return password
+    
