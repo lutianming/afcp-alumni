@@ -82,9 +82,7 @@ class NdbModelView(BaseModelView):
 
     def create_model(self, form):
         member = MemberModel(
-            username=form.username.data,
-            password=form.password.data,
-            role='MEMBER',
+            role=form.role.data,
             sex=form.sex.data,
             lastname=form.lastname.data,
             firstname=form.firstname.data,
@@ -106,8 +104,7 @@ class NdbModelView(BaseModelView):
         return True
     
     def update_model(self, form, model):
-        model.username = form.username.data
-        model.password = form.password.data
+        model.role = form.role.data
         model.sex = form.sex.data
         model.lastname = form.lastname.data
         model.firstname = form.firstname.data

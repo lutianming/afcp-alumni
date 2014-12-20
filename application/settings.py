@@ -16,7 +16,7 @@ class Config(object):
     CSRF_SESSION_KEY = SESSION_KEY
     # Flask-Cache settings
     CACHE_TYPE = 'gaememcached'
-
+    ADMINS = ['lutianming1005@gmail']
 
 class Development(Config):
     DEBUG = True

@@ -92,10 +92,21 @@ def update_info():
         flash('info updated')
     return render_template('update_info.html', form=form)
 
-@app.route('/members')
+@app.route('/members/')
 def members():
-    members = MemberModel.query()
-    return render_template('members.html', members=members)
+    page_size = 20
+    page = int(request.args.get('page', 0))
+    
+    query = MemberModel.query()
+    members = query.fetch(page_size, offset=page*page_size)
+    num_pages = query.count() / page_size
+    
+    def pager_url(p):
+        return url_for('members', page=p)
+    
+    return render_template('members.html', members=members,
+                           page=page, num_pages=num_pages,
+                           pager_url=pager_url)
 
 @app.route('/member/<urlsafe>')
 def member(urlsafe):
@@ -106,10 +117,28 @@ def member(urlsafe):
 
 @app.route('/search')
 def search():
+    page_size = 20
+    page = int(request.args.get('page', 0))
+
     q = request.args.get('q', '')
     index = gsearch.Index(name='members')
-    results = index.search(q)
-    return render_template('result.html', results=results)
+
+    options = gsearch.QueryOptions(
+        limit=page_size,
+        offset=page_size*page,
+    )
+    query = gsearch.Query(query_string=q, options=options)
+    result = index.search(query)
+    count = result.number_found
+
+    num_pages = count / page_size
+    
+    def pager_url(p):
+        return url_for('search', q=q, page=p)
+    return render_template('result.html', results=result,
+                           page=page,
+                           num_pages=num_pages,
+                           pager_url=pager_url)
 
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()

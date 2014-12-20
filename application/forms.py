@@ -13,11 +13,6 @@ from flaskext.wtf import validators
 from wtforms.ext.appengine.ndb import model_form
 
 
-class ClassicExampleForm(wtf.Form):
-    example_name = wtf.TextField('Name', validators=[validators.Required()])
-    example_description = wtf.TextAreaField('Description', validators=[validators.Required()])
-
-
 class LoginForm(wtf.Form):
     username = wtf.TextField('username',
                              validators=[validators.Required()])
@@ -56,11 +51,13 @@ class MemberInfoForm(wtf.Form):
 
     chinese_university = wtf.TextField('chinese university')
     paristech_school = wtf.TextField('paristech shool')
-    paristech_entrance_year = wtf.TextField('paristech entrance year')
+    paristech_entrance_year = wtf.IntegerField('paristech entrance year')
     domain_china = wtf.TextField('domain in China')
     domain_france = wtf.TextField('domain in France')
 
     employer = wtf.TextField('employer')
 
 class MemberForm(MemberInfoForm):
-    password = wtf.PasswordField('password', validators=[validators.Required()])
+    role = wtf.SelectField('role', choices=[('ADMIN', 'ADMIN'),
+                                            ('MEMBER', 'MEMBER')],
+                           validators=[validators.Required()])

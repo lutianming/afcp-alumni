@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% import "lib.html" as lib with context %}
 
 {% block content %}
-    <table>
+    <table class="table">
 	<tr>
 	    <th>name</th>
 	    <th>chinesename</th>
@@ -14,5 +15,6 @@
 		<td>{{ member.email }}</td>
 	    </tr>
 	{% endfor %}
-    </table>    
+    </table>
+    {{ lib.pager(page, num_pages, pager_url) }}    
 {% endblock content %}
