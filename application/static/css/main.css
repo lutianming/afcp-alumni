@@ -4,10 +4,8 @@
 /* @section forms */
 .btn.cancel { margin-left: 0.5rem; }
 .nowrap { white-space: nowrap; }
-body {
 
-}
-.navbar {
-
-}
 /* Your customizations here */
+.row {
+    margin: 20px;
+}

@@ -21,6 +21,10 @@ class LoginForm(wtf.Form):
     remember = wtf.BooleanField('remember')
 
 
+class SearchForm(wtf.Form):
+    q = wtf.TextField('query', validators=[validators.Required()])
+
+    
 class ChangePasswordForm(wtf.Form):
     old_password = wtf.PasswordField('old password',
                                      validators=[validators.Required()])

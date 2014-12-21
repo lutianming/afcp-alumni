@@ -5,6 +5,7 @@
 	<input type=file name=file>
         <input type=submit value=Upload>
     </form>
+    <a href="{{ url_for('members.reindex') }}">reindex</a>
     {{ super() }}
 {% endblock %}
 
@@ -14,3 +15,4 @@
     {% endif %}
     {{ super() }}
 {% endblock %}
+

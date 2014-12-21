@@ -21,14 +21,19 @@ def create_document(member):
             search.TextField(name='chinesename',
                              value=member.chinesename),
             search.TextField(name='email',
-                             value=member.email)
+                             value=member.email),
+            search.TextField(name='chinese_university',
+                             value=member.chinese_university),
+            search.TextField(name='paristech_school',
+                             value=member.paristech_school),
+            search.NumberField(name='paristech_entrance_year',
+                               value=member.paristech_entrance_year)
             ]
         )
     return document
 
 
-def update_member(member):
-    member.put()
+def update_document(member):
     document = create_document(member)
     index = search.Index(name='members')
     index.put(document)
@@ -40,7 +45,9 @@ class NdbModelView(BaseModelView):
     can_delete = True
 
     list_template = 'admin/model/member_list_template.html'
-    column_list = ['email', 'lastname', 'firstname', 'chinesename', 'role', 'last_login']
+    column_list = ['email', 'lastname', 'firstname', 'chinesename',
+                   'chinese_university', 'paristech_school',
+                   'role', 'last_login']
     column_searchable_list = ('lastname', 'firstname',
                               'chinesename', 'email')
     # column_filters = ('lastname', 'firstname')
@@ -58,23 +65,32 @@ class NdbModelView(BaseModelView):
     def init_search(self):
         return True
     
-    def get_list(self, page, sort_column, sort_desc, search, filters,
-                 execute=True):
-        print(page, sort_column, sort_desc, search, filters)
-        if search:
-            query = self.model.query(ndb.OR(self.model.lastname == search,
-                                            self.model.firstname == search,
-                                            self.model.email == search))
+    def get_list(self, page, sort_column, sort_desc,
+                 search_string, filters, execute=True):
+        if page is None:
+            page = 0
+        index = search.Index(name='members')
+        options = search.QueryOptions(limit=self.page_size,
+                                      offset=page*self.page_size)
+        if search_string:
+            query = search.Query(query_string=search_string,
+                                 options=options)
         else:
-            query = self.model.query()
-            
-        if page is not None:
-            result = query.fetch(self.page_size,
-                                 offset=page*self.page_size)
-        else:
-            result = query.fetch(self.page_size)
-            
-        return query.count(), result
+            query = search.Query(query_string='')
+        result = index.search(query)
+        
+        # if page is not None:
+        #     result = query.fetch(self.page_size,
+        #                          offset=page*self.page_size)
+        # else:
+        #     result = query.fetch(self.page_size)
+        count = result.number_found
+        keys = []
+        for r in result:
+            key = ndb.Key(urlsafe=r.doc_id)
+            keys.append(key)
+        members = ndb.get_multi(keys)
+        return count, members
 
     def get_one(self, urlsafe):
         key = ndb.Key(urlsafe=urlsafe)
@@ -100,7 +116,8 @@ class NdbModelView(BaseModelView):
             domain_china=form.domain_china.data,
             domain_france=form.domain_france.data,
         )
-        update_member(member)
+        member.put()
+        update_document(member)
         return True
     
     def update_model(self, form, model):
@@ -121,7 +138,9 @@ class NdbModelView(BaseModelView):
         model.paristech_entrance_year = form.paristech_entrance_year.data
         model.domain_china = form.domain_china.data
         model.domain_france = form.domain_france.data
-        update_member(model)
+
+        model.put()
+        update_document(model)
         return True
     
     def delete_model(self, model):
@@ -145,11 +164,18 @@ class NdbModelView(BaseModelView):
                        'employer', 'email', 'phone', 'address_plus',
                        'address', 'resident', 'weibo', 'weixin', 'remark']
             count = 0
+            china = set()
+            paris = set()
             for i in range(1, sheet.nrows):
-                print(i)
                 row = sheet.row_values(i)
                 #avoid duplicated user
                 email = row[columns.index('email')]
+
+                c = row[columns.index('chinese_university')]
+                china.add(c)
+                p = row[columns.index('paristech_school')]
+                paris.add(p)
+                            
                 if isinstance(email, float):
                     email = str(int(email))
 
@@ -160,8 +186,6 @@ class NdbModelView(BaseModelView):
                 for j, column in enumerate(columns):
                     if hasattr(member, column):
                         data = row[j]
-                        print(column, data)
-                        
                         if not data:
                             continue
                         
@@ -203,10 +227,14 @@ class NdbModelView(BaseModelView):
                                 setattr(member, column, str(int(data)))
                             else:
                                 setattr(member, column, data)
+
                         else:
                             setattr(member, column, data)
-                update_member(member)
+                member.put()
+                update_document(member)
                 count += 1
+        print(china)
+        print(paris)
         flash('imported {0} members'.format(count))
         return redirect(url_for('members.index_view'))
 
@@ -247,6 +275,13 @@ class NdbModelView(BaseModelView):
         message.send()
         return True
 
+    @expose('/reindex')
+    def reindex(self):
+        members = MemberModel.query()
+        for member in members:
+            update_document(member)
+        flash('all members reindexed')
+        return redirect(url_for('members.index_view'))
     
 def gen_password(length=6):
     password = ""

@@ -18,7 +18,7 @@ import flask_login
 from flask_login import current_user
 from application import app
 from decorators import login_required, admin_required
-from forms import LoginForm, ChangePasswordForm, MemberInfoForm
+from forms import LoginForm, ChangePasswordForm, MemberInfoForm, SearchForm
 from models import MemberModel
 import datetime
 
@@ -45,6 +45,7 @@ def login():
             flask_login.login_user(member, remember=remember)
             member.last_login = datetime.datetime.now()
             member.put()
+
     return redirect(url_for('home'))
 
 
@@ -135,10 +136,11 @@ def search():
     
     def pager_url(p):
         return url_for('search', q=q, page=p)
-    return render_template('result.html', results=result,
+    return render_template('search.html', results=result,
                            page=page,
                            num_pages=num_pages,
-                           pager_url=pager_url)
+                           pager_url=pager_url,
+                           q=q)
 
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()

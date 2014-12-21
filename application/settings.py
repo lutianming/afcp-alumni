@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 settings.py
 
@@ -17,7 +18,33 @@ class Config(object):
     # Flask-Cache settings
     CACHE_TYPE = 'gaememcached'
     ADMINS = ['lutianming1005@gmail']
-
+    CHINA_U = [
+        'Peking University',
+        'Tsinghua University',
+        'China Agricultural University',
+        'Nanjing University',
+        'SouthEast University',
+        'Nanjing Agricultural University',
+        'Fudan University',
+        'Shanghai Jiaotong University',
+        'Tongji University',
+        'Zhejiang University',
+        'Wuhan University',
+        'Huazhong University of Science and Technology']
+    PARISTECH = [
+        'École des Ponts ParisTech',
+        'Télécom ParisTech',
+        'ENSAE ParisTech',
+        'ENSTA ParisTech',
+        'Arts et Métiers ParisTech',
+        'Ecole polytechnique',
+        'HEC Paris',
+        'Institut d\'Optique Graduate School',
+        'Chimie ParisTech',
+        'ESPCI ParisTech',
+        'MINES ParisTech',
+        'AgroParisTech']
+    
 class Development(Config):
     DEBUG = True
     # Flask-DebugToolbar settings

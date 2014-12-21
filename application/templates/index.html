@@ -1,5 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="row">
+	<div class="col-md-12">	    
+	    <a href="{{ url_for('home') }}">
+		<img class="center-block" src="{{ url_for('static', filename='img/afcp_logo.jpg') }}"></img>
+	    </a>
 
+	</div>
+    </div>
+    <div class="row">
+	<div class="col-md-6 col-md-offset-3">
+	    <form class="center-block" action="{{ url_for('search') }}" class="form-inline" role="search">
+		<div class="form-group">
+		    <input name="q" type="text" class="form-control" placeholder="Search">
+		</div>
+		<button type="submit" class="btn btn-default">Submit</button>
+	    </form>
+	</div>
+    </div>
+    <div class="row">
+	<div class="col-md-4 col-md-offset-2">
+	    <ul>
+		<li><a href="http://www.enpc.fr">École des Ponts ParisTech </a></li>
+		<li><a href="http://www.enst.fr">Télécom ParisTech</a></li>
+		<li><a href="http://www.ensae.fr">ENSAE ParisTech</a></li>
+		<li><a href="http://www.ensta.fr">ENSTA ParisTech</a></li>
+		<li><a href="http://www.ensam.fr">Arts et Métiers ParisTech</a></li>
+		<li><a href="http://www.polytechnique.fr">Ecole polytechnique</a></li>
+		<li><a href="http://www.hec.fr/">HEC Paris</a></li>
+		<li><a href="http://www.institutoptique.fr">Institut d'Optique Graduate <i>School</i></a></li>
+		<li><a href="http://www.enscp.fr">Chimie ParisTech</a></li>
+		<li><a href="http://www.espci.fr">ESPCI ParisTech</a></li>
+		<li><a href="http://www.ensmp.fr">MINES ParisTech</a></li>
+		<li><a href="http://www.agroparistech.fr">AgroParisTech</a></li>
+	    </ul>		
+	</div>
+	<div class="col-md-4">
+	    <ul>
+		<li>Peking University</li>
+		<li>Tsinghua University</li>
+		<li>China Agricultural University</li>
+		<li>Nanjing University</li>
+		<li>SouthEast University</li>
+		<li>Nanjing Agricultural University</li>
+		<li>Fudan University</li>
+		<li>Shanghai Jiaotong University</li>
+		<li>Tongji University</li>
+		<li>Zhejiang University</li>
+		<li>Wuhan University</li>
+		<li>Huazhong University of Science and Technology</li>
+	    </ul>
+	</div>
 {% endblock content %}

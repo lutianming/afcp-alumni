@@ -1,62 +1,64 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <table>
-	<tr>
-	    <td>name</td>
-	    <td>{{ member.firstname}} {{ member.lastname}}</td>
-	</tr>
-	<tr>
-	    <td>chinesename</td>
-	    <td>{{ member.chinesename}}</td>
-	</tr>
-	<tr>
-	    <td>sex</td>
-	    <td>{{ member.sex }}<td>
-	</tr>
-	<tr>
-	    <td>country</td>
-	    <td>{{ member.coutry }}<td>
-	</tr>
-	<tr>
-	    <td>domain china</td>
-	    <td>{{ member.domain_china }}<td>
-	</tr>
-	<tr>
-	    <td>domain france</td>
-	    <td>{{ member.domain_france }}<td>
-	</tr>
-	<tr>
-	    <td>address</td>
-	    <td>{{ member.address }}<td>
-	</tr>
-	<tr>
-	    <td>email</td>
-	    <td>{{ member.email }}<td>
-	</tr>
-	<tr>
-	    <td>weibo</td>
-	    <td>{{ member.weibo }}<td>
-	</tr>
-	<tr>
-	    <td>weixin</td>
-	    <td>{{ member.weixin }}<td>
-	</tr>
-	<tr>
-	    <td>chinese university</td>
-	    <td>{{ member.chinese_university }}<td>
-	</tr>
-	<tr>
-	    <td>paristech school</td>
-	    <td>{{ member.paristech_school }}<td>
-	</tr>
-	<tr>
-	    <td>paristech entrance year</td>
-	    <td>{{ member.paristech_entrance_year }}<td>
-	</tr>
-	<tr>
-	    <td>employer</td>
-	    <td>{{ member.employer }}</td>
-	</tr>
-    </table>
+    <div class="row">
+	<table class="table">
+	    <tr>
+		<td>name</td>
+		<td>{{ member.lastname}} {{ member.firstname }}</td>
+	    </tr>
+	    <tr>
+		<td>chinesename</td>
+		<td>{{ member.chinesename}}</td>
+	    </tr>
+	    <tr>
+		<td>sex</td>
+		<td>{{ member.sex }}<td>
+	    </tr>
+	    <tr>
+		<td>country</td>
+		<td>{{ member.coutry }}<td>
+	    </tr>
+	    <tr>
+		<td>domain china</td>
+		<td>{{ member.domain_china }}<td>
+	    </tr>
+	    <tr>
+		<td>domain france</td>
+		<td>{{ member.domain_france }}<td>
+	    </tr>
+	    <tr>
+		<td>address</td>
+		<td>{{ member.address }}<td>
+	    </tr>
+	    <tr>
+		<td>email</td>
+		<td>{{ member.email }}<td>
+	    </tr>
+	    <tr>
+		<td>weibo</td>
+		<td>{{ member.weibo }}<td>
+	    </tr>
+	    <tr>
+		<td>weixin</td>
+		<td>{{ member.weixin }}<td>
+	    </tr>
+	    <tr>
+		<td>chinese university</td>
+		<td>{{ member.chinese_university }}<td>
+	    </tr>
+	    <tr>
+		<td>paristech school</td>
+		<td>{{ member.paristech_school }}<td>
+	    </tr>
+	    <tr>
+		<td>paristech entrance year</td>
+		<td>{{ member.paristech_entrance_year }}<td>
+	    </tr>
+	    <tr>
+		<td>employer</td>
+		<td>{{ member.employer }}</td>
+	    </tr>
+	</table>
+    </div>
 {% endblock content %}
