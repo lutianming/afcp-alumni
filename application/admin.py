@@ -48,8 +48,9 @@ class NdbModelView(BaseModelView):
     column_list = ['email', 'lastname', 'firstname', 'chinesename',
                    'chinese_university', 'paristech_school',
                    'role', 'last_login']
-    column_searchable_list = ('lastname', 'firstname',
-                              'chinesename', 'email')
+    # column_sortable_list = ['email']
+    column_searchable_list = ['lastname', 'firstname',
+                              'chinesename', 'email']
     # column_filters = ('lastname', 'firstname')
     page_size = 20
     
@@ -67,6 +68,15 @@ class NdbModelView(BaseModelView):
     
     def get_list(self, page, sort_column, sort_desc,
                  search_string, filters, execute=True):
+        print(page, sort_column, sort_desc, search_string, filters)
+        # if sort_column:
+        #     direction = search.SortExpression.DESCENDING
+        #     expr = search.SortExpression(expression=sort_column,
+        #                                  direction=direction)
+        #     sort_options = search.SortOptions(expressions=[expr])
+        # else:
+        #     sort_options = None
+            
         if page is None:
             page = 0
         index = search.Index(name='members')
@@ -76,19 +86,17 @@ class NdbModelView(BaseModelView):
             query = search.Query(query_string=search_string,
                                  options=options)
         else:
-            query = search.Query(query_string='')
+            query = search.Query(query_string='',
+                                 options=options)
         result = index.search(query)
         
-        # if page is not None:
-        #     result = query.fetch(self.page_size,
-        #                          offset=page*self.page_size)
-        # else:
-        #     result = query.fetch(self.page_size)
         count = result.number_found
         keys = []
-        for r in result:
+
+        for r in result.results:
             key = ndb.Key(urlsafe=r.doc_id)
             keys.append(key)
+
         members = ndb.get_multi(keys)
         return count, members
 
