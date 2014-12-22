@@ -47,10 +47,15 @@ class NdbModelView(BaseModelView):
     list_template = 'admin/model/member_list_template.html'
     column_list = ['email', 'lastname', 'firstname', 'chinesename',
                    'chinese_university', 'paristech_school',
+                   'paristech_entrance_year',
                    'role', 'last_login']
-    # column_sortable_list = ['email']
+    column_sortable_list = ['email', 'lastname', 'firstname',
+                            'chinesename',
+                            'chinese_university', 'paristech_school',
+                            'paristech_entrance_year']
     column_searchable_list = ['lastname', 'firstname',
-                              'chinesename', 'email']
+                              'chinesename', 'email',
+                              'paristech_entrance_year']
     # column_filters = ('lastname', 'firstname')
     page_size = 20
     
@@ -69,19 +74,23 @@ class NdbModelView(BaseModelView):
     def get_list(self, page, sort_column, sort_desc,
                  search_string, filters, execute=True):
         print(page, sort_column, sort_desc, search_string, filters)
-        # if sort_column:
-        #     direction = search.SortExpression.DESCENDING
-        #     expr = search.SortExpression(expression=sort_column,
-        #                                  direction=direction)
-        #     sort_options = search.SortOptions(expressions=[expr])
-        # else:
-        #     sort_options = None
+        if sort_column:
+            if sort_desc:
+                direction = search.SortExpression.DESCENDING
+            else:
+                direction = search.SortExpression.ASCENDING
+            expr = search.SortExpression(expression=sort_column,
+                                         direction=direction)
+            sort_options = search.SortOptions(expressions=[expr])
+        else:
+            sort_options = None
             
         if page is None:
             page = 0
         index = search.Index(name='members')
         options = search.QueryOptions(limit=self.page_size,
-                                      offset=page*self.page_size)
+                                      offset=page*self.page_size,
+                                      sort_options=sort_options)
         if search_string:
             query = search.Query(query_string=search_string,
                                  options=options)
