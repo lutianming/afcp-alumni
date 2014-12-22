@@ -44,3 +44,10 @@ class MemberModel(ndb.Model):
 
     def get_id(self):
         return unicode(self.key.id())
+
+
+class ResetPasswordModel(ndb.Model):
+    email = ndb.StringProperty()
+    expire_time = ndb.DateTimeProperty()
+
+

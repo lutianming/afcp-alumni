@@ -13,14 +13,39 @@ from flaskext.wtf import validators
 from wtforms.ext.appengine.ndb import model_form
 
 
+def validate_password(form, field):
+    password = field.data
+    if len(password) < 6:
+        raise validators.ValidationError("password should have no less than 6 letters")
+    
+def validate_confirm_password(form, field):
+    if form.new_password.data != field.data:
+        raise validators.ValidationError("password not confirmed")
+
+def validate_new_password(form, field):
+    if form.old_password.data == field:
+        raise validators.ValidationError("new password should not be the same as old password")
+
 class LoginForm(wtf.Form):
-    username = wtf.TextField('username',
-                             validators=[validators.Required()])
+    email = wtf.TextField('email',
+                          validators=[validators.Required()])
     password = wtf.PasswordField('password',
                                  validators=[validators.Required()])
     remember = wtf.BooleanField('remember')
 
 
+class ForgetPasswordForm(wtf.Form):
+    email = wtf.TextField('email',
+                          validators=[validators.Email()])
+    
+class ResetPasswordForm(wtf.Form):
+    new_password = wtf.PasswordField('new password',
+                                     validators=[validators.Required(),
+                                                 validate_password])
+    confirm_password = wtf.PasswordField('comfirm new passowd',
+                                         validators=[validators.Required(),
+                                                     validate_confirm_password])
+    
 class SearchForm(wtf.Form):
     q = wtf.TextField('query', validators=[validators.Required()])
 
@@ -29,9 +54,12 @@ class ChangePasswordForm(wtf.Form):
     old_password = wtf.PasswordField('old password',
                                      validators=[validators.Required()])
     new_password = wtf.PasswordField('new password',
-                                     validators=[validators.Required()])
-    comfirm_password = wtf.PasswordField('comfirm new passowd',
-                                         validators=[validators.Required()])
+                                     validators=[validators.Required(),
+                                                 validate_new_password,
+                                                 validate_password])
+    confirm_password = wtf.PasswordField('comfirm new passowd',
+                                         validators=[validators.Required(),
+                                                     validate_confirm_password])
 
 
 class MemberInfoForm(wtf.Form):

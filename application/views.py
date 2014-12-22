@@ -8,7 +8,7 @@ For example the *say_hello* handler, handling the URL route '/hello/<username>',
   must be passed *username* as the argument.
 
 """
-from google.appengine.api import search as gsearch
+from google.appengine.api import search as gsearch, mail
 from google.appengine.ext import ndb
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 from flask import request, render_template, flash, url_for, redirect
@@ -18,8 +18,8 @@ import flask_login
 from flask_login import current_user
 from application import app
 from decorators import login_required, admin_required
-from forms import LoginForm, ChangePasswordForm, MemberInfoForm, SearchForm
-from models import MemberModel
+from forms import LoginForm, ChangePasswordForm, MemberInfoForm, SearchForm, ForgetPasswordForm, ResetPasswordForm
+from models import MemberModel, ResetPasswordModel
 import datetime
 
 # Flask-Cache (configured to use App Engine Memcache API)
@@ -27,14 +27,15 @@ cache = Cache(app)
 
 
 def home():
-    return render_template('index.html')
+    form = LoginForm(request.form)
+    return render_template('index.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
-        email = form.username.data
+        email = form.email.data
         password = form.password.data
         remember = form.remember.data
 
@@ -45,8 +46,8 @@ def login():
             flask_login.login_user(member, remember=remember)
             member.last_login = datetime.datetime.now()
             member.put()
-
-    return redirect(url_for('home'))
+        
+    return render_template('index.html', form=form)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -54,6 +55,59 @@ def login():
 def logout():
     flask_login.logout_user()
     return redirect(url_for('home'))
+
+@app.route('/forget_password', methods=['GET', 'POST'])
+def forget_password():
+    form = ForgetPasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        email = form.email.data
+        time = datetime.datetime.now() + datetime.timedelta(days=1)
+        model = ResetPasswordModel(
+            email=email,
+            expire_time=time
+        )
+        model.put()
+
+        link = url_for('reset_password', id=model.key.urlsafe())
+        sender = "admin@afcp-alumni.com"
+        message = mail.EmailMessage(sender=sender)
+        message.to = email
+        message.subject = "reset password"
+        message.body = """
+        reset your password by the following link:
+        {0}
+        """.format(link)
+        message.send()
+        
+        flash(link)
+    return render_template('forget_password.html', form=form)
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    form = ResetPasswordForm(request.form)
+
+    urlsafe = request.args.get('id', '')
+    key = ndb.Key(urlsafe=urlsafe)
+    r = key.get()
+    if r.expire_time < datetime.datetime.now():
+        flash('not valide URL')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST' and form.validate():
+        password = form.new_password.data
+        member = MemberModel.query(MemberModel.email==r.email).get()
+        member.password = password
+
+        flask_login.login_user(member)
+        member.last_login = datetime.datetime.now()
+        member.put()
+        #delete reset request model after change
+        key.delete()
+        
+        flash('password changed')
+        return redirect(url_for('home'))
+    return render_template('reset_password.html', form=form, id=urlsafe)
 
 @app.route('/personal')
 @login_required
@@ -68,17 +122,13 @@ def change_password():
     if request.method == 'POST' and form.validate():
         oldpassword = form.old_password.data
         newpassword = form.new_password.data
-        comfirm = form.comfirm_password.data
-        if oldpassword == current_user.password and \
-           newpassword == comfirm:
+        if oldpassword == current_user.password:
             current_user.password = newpassword
             current_user.put()
             flash('password changed')
         else:
-            if oldpassword != current_user.password:
-                flash('wrong password')
-            if newpassword != comfirm:
-                flash('new password not comfirmed')
+            flash('wrong password')
+
     return render_template('change_password.html', form=form)
 
 
