@@ -34,7 +34,10 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
-    if request.method == 'POST':
+    if current_user.is_authenticated():
+        return redirect(url_for('home'))
+
+    if request.method == 'POST' and form.validate():
         email = form.email.data
         password = form.password.data
         remember = form.remember.data
@@ -46,8 +49,11 @@ def login():
             flask_login.login_user(member, remember=remember)
             member.last_login = datetime.datetime.now()
             member.put()
-        
-    return render_template('index.html', form=form)
+
+            flash('log in')
+            return redirect(url_for('home'))
+        flash('login failed, wrong email or password')
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -109,9 +115,9 @@ def reset_password():
         return redirect(url_for('home'))
     return render_template('reset_password.html', form=form, id=urlsafe)
 
-@app.route('/personal')
+@app.route('/account')
 @login_required
-def personal():
+def account():
     return render_template('personal.html')
 
 
@@ -126,6 +132,8 @@ def change_password():
             current_user.password = newpassword
             current_user.put()
             flash('password changed')
+
+            return redirect(url_for('account'))
         else:
             flash('wrong password')
 
@@ -141,6 +149,8 @@ def update_info():
             setattr(current_user, field.name, field.data)
         current_user.put()
         flash('info updated')
+        return redirect(url_for('account'))
+    
     return render_template('update_info.html', form=form)
 
 @app.route('/members/')

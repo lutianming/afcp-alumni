@@ -48,13 +48,16 @@
 		{% if current_user.role == 'ADMIN' %}
 		    <li><a href="{{ url_for('admin.index') }}">admin</a></li>
 		{% endif %}
-		<li><a href="{{ url_for('personal') }}">account</a></li>
+		<li><a href="{{ url_for('account') }}">account</a></li>
 		<li><a href="{{ url_for('logout') }}">logout</a></li>
 	    {% else %}
 		<li>
+		{#
 		<a href="#" data-toggle="modal" data-target="#myModal">
 		    login
 		</a>
+		#}
+		<a href="{{ url_for('login') }}">login</a>
 		</li>
 
 	    {% endif %}	

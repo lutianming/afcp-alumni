@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ current_user.firstname }} {{ current_user.lastname }}</h1>
-    <h2>{{ current_user.chinesename }}</h2>
-    <a type='btn' href="{{ url_for('change_password') }}">change password</a>
-    <a type='btn' href="{{ url_for('update_info') }}">update info</a>
-    <p>
-	<table>
+    <h2>{{ current_user.firstname }} {{ current_user.lastname }}</h2>
+    <h4>{{ current_user.chinesename }}</h4>
+    <hr>
+    <div class="col-sm-4">
+	<a class='btn' href="{{ url_for('change_password') }}">change password</a>
+	<a class='btn' href="{{ url_for('update_info') }}">update info</a>
+    </div>
+    <div class="col-sm-8">
+	<table class="table">
 	    <tr>
 		<td>sex</td>
 		<td>{{ current_user.sex }}</td>
@@ -35,6 +38,26 @@
 		<td>weixin</td>
 		<td>{{ current_user.weixin }}</td>
 	    </tr>
+	    <tr>
+		<td>chinese university</td>
+		<td>{{ current_user.chinese_university }}</td>
+	    </tr>
+	    <tr>
+		<td>paristech school</td>
+		<td>{{ current_user.paristech_school }}</td>
+	    </tr>
+	    <tr>
+		<td>paristech entrance year</td>
+		<td>{{ current_user.paristech_entrance_year }}</td>
+	    </tr>
+	    <tr>
+		<td>domain in China</td>
+		<td>{{ current_user.domain_china }}</td>
+	    </tr>	    
+	    <tr>
+		<td>domain in France</td>
+		<td>{{ current_user.domain_france }}</td>
+	    </tr>
 	</table>
-    </p>
+    </div>
 {% endblock content %}

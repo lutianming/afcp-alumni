@@ -2,7 +2,7 @@
 {% from "_formhelpers.html" import render_field %}
 
 {% block content %}
-    <form method="post" action="{{ url_for('update_info') }}">
+    <form class="form-horizontal" method="post" action="{{ url_for('update_info') }}">
 	<fieldset>
 	    {{ form.hidden_tag() }}
 	    {{ render_field(form.email)}}
@@ -23,6 +23,6 @@
 	    {{ render_field(form.domain_france)}}
 	    {{ render_field(form.employer)}}
 	</fieldset>
-	<input type="submit" value="update_info">
+	<input type="submit" value="update info">
     </form>
 {% endblock content %}

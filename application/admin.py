@@ -200,6 +200,7 @@ class NdbModelView(BaseModelView):
                     continue
 
                 member = MemberModel()
+                member.role = 'MEMBER'
                 for j, column in enumerate(columns):
                     if hasattr(member, column):
                         data = row[j]

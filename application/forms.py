@@ -28,7 +28,8 @@ def validate_new_password(form, field):
 
 class LoginForm(wtf.Form):
     email = wtf.TextField('email',
-                          validators=[validators.Required()])
+                          validators=[validators.Required(),
+                                      validators.Email()])
     password = wtf.PasswordField('password',
                                  validators=[validators.Required()])
     remember = wtf.BooleanField('remember')
