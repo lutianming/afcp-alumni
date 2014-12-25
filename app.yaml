@@ -1,5 +1,5 @@
-application: flaskgithub
-version: 1
+application: afcp-alumni
+version: python
 runtime: python27
 api_version: 1
 threadsafe: true
