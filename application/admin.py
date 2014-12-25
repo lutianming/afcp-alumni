@@ -1,15 +1,15 @@
-from flask import request, flash, redirect, url_for
-from flask_admin import BaseView, expose
+from flask import request, flash, redirect, url_for, make_response
+from flask_admin import expose
 from flask_admin.model import BaseModelView
 from flask_admin.model.helpers import get_mdict_item_or_list
+from flask_login import current_user
 from google.appengine.ext import ndb
 from google.appengine.api import search, mail
 from forms import MemberForm
 from models import MemberModel
-import xlrd
-import datetime
-import re
+from helpers import read_excel, write_excel
 import random
+import StringIO
 
 
 def create_document(member):
@@ -58,6 +58,8 @@ class NdbModelView(BaseModelView):
                               'paristech_entrance_year']
     # column_filters = ('lastname', 'firstname')
     page_size = 20
+    def is_accessible(self):
+        return current_user.is_authenticated() and current_user.role == 'ADMIN'
     
     def get_pk_value(self, model):
         return model.key.urlsafe()
@@ -73,7 +75,6 @@ class NdbModelView(BaseModelView):
     
     def get_list(self, page, sort_column, sort_desc,
                  search_string, filters, execute=True):
-        print(page, sort_column, sort_desc, search_string, filters)
         if sort_column:
             if sort_desc:
                 direction = search.SortExpression.DESCENDING
@@ -90,7 +91,9 @@ class NdbModelView(BaseModelView):
         index = search.Index(name='members')
         options = search.QueryOptions(limit=self.page_size,
                                       offset=page*self.page_size,
-                                      sort_options=sort_options)
+                                      sort_options=sort_options,
+                                      number_found_accuracy=1000)
+
         if search_string:
             query = search.Query(query_string=search_string,
                                  options=options)
@@ -107,6 +110,7 @@ class NdbModelView(BaseModelView):
             keys.append(key)
 
         members = ndb.get_multi(keys)
+        print(count)
         return count, members
 
     def get_one(self, urlsafe):
@@ -114,47 +118,12 @@ class NdbModelView(BaseModelView):
         return key.get()
 
     def create_model(self, form):
-        member = MemberModel(
-            role=form.role.data,
-            sex=form.sex.data,
-            lastname=form.lastname.data,
-            firstname=form.firstname.data,
-            chinesename=form.chinesename.data,
-            birthday=form.birthday.data,
-            country=form.country.data,
-            address=form.address.data,
-            email=form.email.data,
-            weibo=form.weibo.data,
-            weixin=form.weixin.data,
-
-            chinese_university=form.chinese_university.data,
-            paristech_school=form.paristech_school.data,
-            paristech_entrance_year=form.paristech_entrance_year.data,
-            domain_china=form.domain_china.data,
-            domain_france=form.domain_france.data,
-        )
-        member.put()
-        update_document(member)
-        return True
+        member = MemberModel()
+        return self.update_model(form, member)
     
     def update_model(self, form, model):
-        model.role = form.role.data
-        model.sex = form.sex.data
-        model.lastname = form.lastname.data
-        model.firstname = form.firstname.data
-        model.chinesename = form.chinesename.data
-        model.birthday = form.birthday.data
-        model.country = form.country.data
-        model.address = form.address.data
-        model.email = form.email.data
-        model.weibo = form.weibo.data
-        model.weixin = form.weixin.data
-
-        model.chinese_university = form.chinese_university.data
-        model.paristech_school = form.paristech_school.data
-        model.paristech_entrance_year = form.paristech_entrance_year.data
-        model.domain_china = form.domain_china.data
-        model.domain_france = form.domain_france.data
+        for field in form:
+            setattr(model, field.name, field.data)
 
         model.put()
         update_document(model)
@@ -169,93 +138,26 @@ class NdbModelView(BaseModelView):
     @expose('/upload/', methods=['GET', 'POST'])
     def upload(self):
         for k, f in request.files.items():
-            book = xlrd.open_workbook(file_contents=f.read())
-            sheet = book.sheets()[0]
-            columns = ['lastname', 'firstname', 'sex', 'chinesename',
-                       'birthday', 'paristech_entrance_year',
-                       'paristech_school', 'chinese_university',
-                       'scholarship', 'domain_france', 'domain_china',
-                       'other_diploma', 'diploma_school',
-                       'first_employer_country', 'internship',
-                       'first_employer', 'current_employer_country',
-                       'employer', 'email', 'phone', 'address_plus',
-                       'address', 'resident', 'weibo', 'weixin', 'remark']
-            count = 0
-            china = set()
-            paris = set()
-            for i in range(1, sheet.nrows):
-                row = sheet.row_values(i)
-                #avoid duplicated user
-                email = row[columns.index('email')]
-
-                c = row[columns.index('chinese_university')]
-                china.add(c)
-                p = row[columns.index('paristech_school')]
-                paris.add(p)
-                            
-                if isinstance(email, float):
-                    email = str(int(email))
-
-                if not email or MemberModel.query(MemberModel.email == email).get():
-                    continue
-
-                member = MemberModel()
-                member.role = 'MEMBER'
-                for j, column in enumerate(columns):
-                    if hasattr(member, column):
-                        data = row[j]
-                        if not data:
-                            continue
-                        
-                        if column == 'birthday':
-                            try:
-                                if isinstance(data, float):
-                                    t = xlrd.xldate_as_tuple(data, book.datemode)
-                                    date = datetime.date(t[0], t[1], t[2])
-                                else:
-                                    tokens = re.findall('[0-9]+', data)
-                                    if len(tokens) < 3:
-                                        continue
-                                        day = int(tokens[0])
-                                        month = int(tokens[1])
-                                        year = int(tokens[2])
-                                        date = datetime.date(year, month, day)
-                                        setattr(member, column, date)
-                            except Exception as e:
-                                pass
-                        elif column == 'paristech_entrance_year':
-                            setattr(member, column, int(data))
-                        elif column == 'phone':
-                            if isinstance(data, float):
-                                setattr(member, column, str(int(data)))
-                            else:
-                                setattr(member, column, data)
-                        elif column == 'weixin':
-                            if isinstance(data, float):
-                                setattr(member, column, str(int(data)))
-                            else:
-                                setattr(member, column, data)
-                        elif column == 'address':
-                            if isinstance(data, float):
-                                setattr(member, column, str(int(data)))
-                            else:
-                                setattr(member, column, data)
-                        elif column == 'email':
-                            if isinstance(data, float):
-                                setattr(member, column, str(int(data)))
-                            else:
-                                setattr(member, column, data)
-
-                        else:
-                            setattr(member, column, data)
-                member.put()
+            members = read_excel(f.read())
+            ndb.put_multi(members)
+            for member in members:
                 update_document(member)
-                count += 1
-        print(china)
-        print(paris)
-        flash('imported {0} members'.format(count))
+
+        flash('updated {0} members'.format(len(members)))
         return redirect(url_for('members.index_view'))
 
+    @expose('/download/')
+    def download(self):
+        members = MemberModel.query()
+        output = StringIO.StringIO()
+        write_excel(list(members), output)
+
+        filename = "members.xlsx"
+        response = make_response(output.getvalue())
+        response.headers["Content-Disposition"] = "attachment; filename={0}".format(filename)
+        output.close()
+        return response
+    
     @expose('/invite/', methods=('GET', 'POST'))
     def invite(self):
         id = get_mdict_item_or_list(request.args, 'id')
@@ -264,7 +166,6 @@ class NdbModelView(BaseModelView):
 
         flash('invitation sent')
         return redirect(url_for('members.index_view'))
-
 
     @expose('/inviteall')
     def inviteall(self):
@@ -277,18 +178,24 @@ class NdbModelView(BaseModelView):
         
     def _invite(self, member):
         password = gen_password()
-        print(password)
-        sender = 'admin@afcp-alumni.com'
+        sender = 'lutianming1005@gmail.com'
 
         member.password = password
         member.put()
             
         message = mail.EmailMessage(sender=sender)
         message.to = member.email
-        message.subject = "invitation of AFCP Alumni"
+        message.subject = "invitation from AFCP Alumni"
         message.body = """
+        The site of AFCP Alumni(http://afcp-alumni.appspot.com/) is under testing.
+        Please use the following usename and password to login
         username: {0}
         password: {1}
+        If you have any advice or find any bug, contact me please.
+        Thank you!
+
+        Regards!
+        Tianming
         """.format(member.email, password)
         message.send()
         return True

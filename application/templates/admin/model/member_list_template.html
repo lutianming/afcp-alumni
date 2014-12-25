@@ -1,11 +1,24 @@
 {% extends 'admin/model/list.html' %}
 
 {% block body %}
+    <p>columns: 'lastname', 'firstname', 'sex', 'chinesename',
+           'birthday', 'paristech_entrance_year',
+           'paristech_school', 'chinese_university',
+           'scholarship', 'domain_france', 'domain_china',
+           'other_diploma', 'diploma_school',
+           'first_employer_country', 'internship',
+           'first_employer', 'current_employer_country',
+           'employer', 'email', 'phone', 'address_plus',
+        'address', 'resident', 'weibo', 'weixin', 'remark'
+    </p>
+    <p>will be able to change column order in the future</p>
+	
     <form action="{{ url_for('members.upload') }}" method=post enctype=multipart/form-data>
 	<input type=file name=file>
         <input type=submit value=Upload>
     </form>
-    <a href="{{ url_for('members.reindex') }}">reindex</a>
+    <a class="btn" href="{{ url_for('members.reindex') }}">reindex</a>
+    <a class="btn" href="{{ url_for('members.download') }}">download excel</a>
     {{ super() }}
 {% endblock %}
 
