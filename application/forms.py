@@ -71,6 +71,7 @@ class MemberInfoForm(wtf.Form):
     firstname = wtf.TextField('first name', validators=[validators.Required()])
     chinesename = wtf.TextField('chinese name')
     birthday = wtf.DateField('birthday',
+                             description="format: YYYY-MM-DD",
                              validators=[validators.Optional()])
     country = wtf.SelectField('country', choices=[('china', 'china'),
                                                   ('france', 'france')],
@@ -91,6 +92,6 @@ class MemberInfoForm(wtf.Form):
     employer = wtf.TextField('employer')
 
 class MemberForm(MemberInfoForm):
-    role = wtf.SelectField('role', choices=[('ADMIN', 'ADMIN'),
-                                            ('MEMBER', 'MEMBER')],
+    role = wtf.SelectField('role', choices=[('MEMBER', 'MEMBER'),
+                                            ('ADMIN', 'ADMIN')],
                            validators=[validators.Required()])

@@ -5,11 +5,11 @@
 	<table class="table">
 	    <tr>
 		<td>name</td>
-		<td>{{ member.lastname}} {{ member.firstname }}</td>
+		<td>{{ member.lastname }} {{ member.firstname }}</td>
 	    </tr>
 	    <tr>
 		<td>chinesename</td>
-		<td>{{ member.chinesename}}</td>
+		<td>{{ member.chinesename }}</td>
 	    </tr>
 	    <tr>
 		<td>sex</td>
@@ -21,11 +21,11 @@
 	    </tr>
 	    <tr>
 		<td>domain china</td>
-		<td>{{ member.domain_china }}<td>
+		<td>{{ member.domain_china|default('', true) }}<td>
 	    </tr>
 	    <tr>
 		<td>domain france</td>
-		<td>{{ member.domain_france }}<td>
+		<td>{{ member.domain_france|default('', true) }}<td>
 	    </tr>
 	    <tr>
 		<td>address</td>

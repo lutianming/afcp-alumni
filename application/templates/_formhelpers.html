@@ -19,7 +19,7 @@
   {% endif %}
 
   <div class="col-sm-4">
-    {{ field(class_="form-control", **kwargs)|safe }}
+    {{ field(class_="form-control", placeholder=field.description, **kwargs)|safe }}
     {% if field.errors %}
       <span class="help-inline">
 	{% for error in field.errors %}

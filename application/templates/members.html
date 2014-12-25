@@ -12,19 +12,6 @@
 	    </form>
 	</div>
     </div>    
-    <table class="table">
-	<tr>
-	    <th>name</th>
-	    <th>chinesename</th>
-	    <th>email</th>
-	</tr>
-	{% for member in members %}
-	    <tr>
-		<td>{{ member.lastname}} {{ member.firstname}}</td>
-		<td>{{ member.chinesename }}</td>
-		<td>{{ member.email }}</td>
-	    </tr>
-	{% endfor %}
-    </table>
+    {{ lib.render_member_table(members)}}
     {{ lib.pager(page, num_pages, pager_url) }}    
 {% endblock content %}

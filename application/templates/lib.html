@@ -1,108 +1,108 @@
 {# ---------------------- Pager -------------------------- #}
 {% macro pager(page, pages, generator) -%}
-{% if pages > 1 %}
-<div>
-    <ul class="pagination">
-    {% set min = page - 3 %}
-    {% set max = page + 3 + 1 %}
+    {% if pages > 1 %}
+	<div>
+	    <ul class="pagination">
+		{% set min = page - 3 %}
+		{% set max = page + 3 + 1 %}
 
-    {% if min < 0 %}
-        {% set max = max - min %}
-    {% endif %}
-    {% if max >= pages %}
-        {% set min = min - max + pages %}
-    {% endif %}
+		{% if min < 0 %}
+		    {% set max = max - min %}
+		{% endif %}
+		{% if max >= pages %}
+		    {% set min = min - max + pages %}
+		{% endif %}
 
-    {% if min < 0 %}
-        {% set min = 0 %}
-    {% endif %}
-    {% if max >= pages %}
-        {% set max = pages %}
-    {% endif %}
+		{% if min < 0 %}
+		    {% set min = 0 %}
+		{% endif %}
+		{% if max >= pages %}
+		    {% set max = pages %}
+		{% endif %}
 
-    {% if min > 0 %}
-    <li>
-        <a href="{{ generator(0) }}">&laquo;</a>
-    </li>
-    {% else %}
-    <li class="disabled">
-        <a href="javascript:void(0)">&laquo;</a>
-    </li>
-    {% endif %}
-    {% if page > 0 %}
-    <li>
-        <a href="{{ generator(page-1) }}">&lt;</a>
-    </li>
-    {% else %}
-    <li class="disabled">
-        <a href="javascript:void(0)">&lt;</a>
-    </li>
-    {% endif %}
+		{% if min > 0 %}
+		    <li>
+			<a href="{{ generator(0) }}">&laquo;</a>
+		    </li>
+		{% else %}
+		    <li class="disabled">
+			<a href="javascript:void(0)">&laquo;</a>
+		    </li>
+		{% endif %}
+		{% if page > 0 %}
+		    <li>
+			<a href="{{ generator(page-1) }}">&lt;</a>
+		    </li>
+		{% else %}
+		    <li class="disabled">
+			<a href="javascript:void(0)">&lt;</a>
+		    </li>
+		{% endif %}
 
-    {% for p in range(min, max) %}
-    {% if page == p %}
-    <li class="active">
-        <a href="javascript:void(0)">{{ p + 1 }}</a>
-    </li>
-    {% else %}
-    <li>
-        <a href="{{ generator(p) }}">{{ p + 1 }}</a>
-    </li>
-    {% endif %}
-    {% endfor %}
+		{% for p in range(min, max) %}
+		    {% if page == p %}
+			<li class="active">
+			    <a href="javascript:void(0)">{{ p + 1 }}</a>
+			</li>
+		    {% else %}
+			<li>
+			    <a href="{{ generator(p) }}">{{ p + 1 }}</a>
+			</li>
+		    {% endif %}
+		{% endfor %}
 
-    {% if page + 1 < pages %}
-    <li>
-        <a href="{{ generator(page + 1) }}">&gt;</a>
-    </li>
-    {% else %}
-    <li class="disabled">
-        <a href="javascript:void(0)">&gt;</a>
-    </li>
+		{% if page + 1 < pages %}
+		    <li>
+			<a href="{{ generator(page + 1) }}">&gt;</a>
+		    </li>
+		{% else %}
+		    <li class="disabled">
+			<a href="javascript:void(0)">&gt;</a>
+		    </li>
+		{% endif %}
+		{% if max < pages %}
+		    <li>
+			<a href="{{ generator(pages - 1) }}">&raquo;</a>
+		    </li>
+		{% else %}
+		    <li class="disabled">
+			<a href="javascript:void(0)">&raquo;</a>
+		    </li>
+		{% endif %}
+	    </ul>
+	</div>
     {% endif %}
-    {% if max < pages %}
-    <li>
-        <a href="{{ generator(pages - 1) }}">&raquo;</a>
-    </li>
-    {% else %}
-    <li class="disabled">
-        <a href="javascript:void(0)">&raquo;</a>
-    </li>
-    {% endif %}
-    </ul>
-</div>
-{% endif %}
 {%- endmacro %}
 
 {# ---------------------- Forms -------------------------- #}
 {% macro render_field(form, field, kwargs={}) %}
-  {% set direct_error = h.is_field_error(field.errors) %}
-  <div class="control-group{{ ' error' if direct_error else '' }}">
-    <div class="control-label">
-      <label for="{{ field.id }}">{{ field.label.text }}
-          {% if h.is_required_form_field(field) %}
-            <strong style="color: red">&#42;</strong>
-          {%- else -%}
-            &nbsp;
-          {%- endif %}
-      </label>
+    {% set direct_error = h.is_field_error(field.errors) %}
+    <div class="control-group{{ ' error' if direct_error else '' }}">
+	<div class="control-label">
+	    <label for="{{ field.id }}">{{ field.label.text }}
+		{% if h.is_required_form_field(field) %}
+		    <strong style="color: red">&#42;</strong>
+		{%- else -%}
+		    &nbsp;
+		{%- endif %}
+	    </label>
+	</div>
+	<div class="controls">
+	    <div>
+		{{ field(**kwargs)|safe }}
+	    </div>
+	    {% if field.description %}
+		<p class="help-block">{{ field.description }}</p>
+	    {% endif %}
+	    {% if direct_error %}
+		<ul{% if direct_error %} class="input-errors"{% endif %}>
+		    {% for e in field.errors if e is string %}
+			<li>{{ e }}</li>
+		    {% endfor %}
+		</ul>
+	    {% endif %}
+	</div>
     </div>
-    <div class="controls">
-    <div>
-      {{ field(**kwargs)|safe }}
-    </div>
-    {% if field.description %}
-    <p class="help-block">{{ field.description }}</p>
-    {% endif %}
-    {% if direct_error %}
-      <ul{% if direct_error %} class="input-errors"{% endif %}>
-      {% for e in field.errors if e is string %}
-        <li>{{ e }}</li>
-      {% endfor %}
-      </ul>
-    {% endif %}
-    </div>
-  </div>
 {% endmacro %}
 
 {% macro render_header(form, text) %}
@@ -114,7 +114,7 @@
         {{ form.hidden_tag() }}
     {% else %}
         {% if csrf_token %}
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {% endif %}
         {% for f in form if f.type == 'HiddenField' %}
             {{ f }}
@@ -127,35 +127,35 @@
         {% endfor %}
     {% else %}
         {% for f in form if f.type != 'HiddenField' and f.type != 'CSRFTokenField' %}
-          {% if form_opts %}
-            {% set kwargs = form_opts.widget_args.get(f.name, {}) %}
-          {% else %}
-            {% set kwargs = {} %}
-          {% endif %}
-          {{ render_field(form, f, kwargs) }}
+            {% if form_opts %}
+		{% set kwargs = form_opts.widget_args.get(f.name, {}) %}
+            {% else %}
+		{% set kwargs = {} %}
+            {% endif %}
+            {{ render_field(form, f, kwargs) }}
         {% endfor %}
     {% endif %}
 {% endmacro %}
 
 {% macro form_tag(form=None) %}
     <form action="" method="POST" class="form-horizontal" enctype="multipart/form-data">
-      <fieldset>
-        {{ caller() }}
-      </fieldset>
+	<fieldset>
+            {{ caller() }}
+	</fieldset>
     </form>
 {% endmacro %}
 
 {% macro render_form_buttons(cancel_url, extra=None) %}
     <div class="control-group">
-      <div class="controls">
-        <input type="submit" class="btn btn-primary btn-large" value="{{ _gettext('Submit') }}" />
-        {% if extra %}
-        {{ extra }}
-        {% endif %}
-        {% if cancel_url %}
-        <a href="{{ cancel_url }}" class="btn btn-large">{{ _gettext('Cancel') }}</a>
-        {% endif %}
-      </div>
+	<div class="controls">
+            <input type="submit" class="btn btn-primary btn-large" value="{{ _gettext('Submit') }}" />
+            {% if extra %}
+		{{ extra }}
+            {% endif %}
+            {% if cancel_url %}
+		<a href="{{ cancel_url }}" class="btn btn-large">{{ _gettext('Cancel') }}</a>
+            {% endif %}
+	</div>
     </div>
 {% endmacro %}
 
@@ -164,4 +164,78 @@
         {{ render_form_fields(form, form_opts=form_opts) }}
         {{ render_form_buttons(cancel_url, extra) }}
     {% endcall %}
+{% endmacro %}
+
+{% macro render_result_table(members) %}
+    <table class="table">
+	<tr>
+	    <th>name</th>
+	    <th>chinese name</th>
+	    <th>email</th>
+	    <th>chinese university</th>
+	    <th>paristech school</th>
+	    <th>entrance year</th>
+	</tr>
+	{% for result in members %}
+	    <tr>
+		<td>
+		    <a href="{{ url_for('member', urlsafe=result.doc_id)}}">
+			{{ result.field('name').value }}
+		    </a>
+		</td>
+		<td>
+		    {{ result.field('chinesename').value }}
+		</td>
+		<td>
+		    {{ result.field('email').value }}
+		</td>
+		<td>
+		    {{ result.field('chinese_university').value }}
+		</td>
+		<td>
+		    {{ result.field('paristech_school').value}}
+		</td>
+		<td>
+		    {{ result.field('paristech_entrance_year').value|int }}
+		</td>
+	    </tr>
+	{% endfor %}
+    </table>    
+{% endmacro %}
+
+{% macro render_member_table(members) %}
+    <table class="table">
+	<tr>
+	    <th>name</th>
+	    <th>chinese name</th>
+	    <th>email</th>
+	    <th>chinese university</th>
+	    <th>paristech school</th>
+	    <th>entrance year</th>
+	</tr>
+	{% for member in members %}
+	    <tr>
+		<td>
+		    <a href="{{ url_for('member', urlsafe=member.key.urlsafe())}}">
+			{{ member.firstname }} {{ member.lastname }}
+		    </a>
+		</td>
+		<td>
+		    {{ member.chinesename }}
+		</td>
+		<td>
+		    {{ member.email }}
+		</td>
+		<td>
+		    {{ member.chinese_university }}
+		</td>
+		<td>
+		    {{ member.paristech_school }}
+		</td>
+		<td>
+		    {{ member.paristech_entrance_year }}
+		</td>
+	    </tr>
+	{% endfor %}
+    </table>    
 {% endmacro %}

@@ -13,40 +13,7 @@
 	</div>
     </div>
     <div class="row">
-    <table class="table">
-	<tr>
-	    <th>name</th>
-	    <th>chinese name</th>
-	    <th>email</th>
-	    <th>chinese university</th>
-	    <th>paristech school</th>
-	    <th>entrance year</th>
-	</tr>
-	{% for result in results %}
-	    <tr>
-		<td>
-		    <a href="{{ url_for('member', urlsafe=result.doc_id)}}">
-			{{ result.field('name').value }}
-		    </a>
-		</td>
-		<td>
-		    {{ result.field('chinesename').value }}
-		</td>
-		<td>
-		    {{ result.field('email').value }}
-		</td>
-		<td>
-		    {{ result.field('chinese_university').value }}
-		</td>
-		<td>
-		    {{ result.field('paristech_school').value}}
-		</td>
-		<td>
-		    {{ result.field('paristech_entrance_year').value|int }}
-		</td>
-	    </tr>
-	{% endfor %}
-    </table>
-    {{ lib.pager(page, num_pages, pager_url) }}
+	{{ lib.render_result_table(results)}}
+	{{ lib.pager(page, num_pages, pager_url) }}
     </div>
 {% endblock content %}

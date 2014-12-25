@@ -50,9 +50,9 @@ def login():
             member.last_login = datetime.datetime.now()
             member.put()
 
-            flash('log in')
+            # flash('log in', category="success")
             return redirect(url_for('home'))
-        flash('login failed, wrong email or password')
+        flash('login failed, wrong email or password', category="danger")
     return render_template('login.html', form=form)
 
 
