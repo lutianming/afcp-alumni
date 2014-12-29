@@ -26,3 +26,14 @@
 	<input type="submit" value="update info">
     </form>
 {% endblock content %}
+
+{% block tail_script %}
+    <script>
+     $('#birthday').datepicker({
+	 yearRange: "1970:c",
+	 dateFormat: "yy-mm-dd",	 
+	 changeMonth: true,
+	 changeYear: true	 
+     })
+    </script>        
+{% endblock tail_script %}
