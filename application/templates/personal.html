@@ -5,59 +5,79 @@
     <h4>{{ current_user.chinesename }}</h4>
     <hr>
     <div class="col-sm-4">
-	<a class='btn' href="{{ url_for('change_password') }}">change password</a>
-	<a class='btn' href="{{ url_for('update_info') }}">update info</a>
+	<ul class="nav nav-pills nav-stacked">
+	    <li>
+		<a class='btn' href="{{ url_for('change_password') }}">change password</a>
+	    </li>
+	    <li>
+		<a class='btn' href="{{ url_for('change_email') }}">change email</a>
+	    </li>
+	    <li>
+		<a class='btn' href="{{ url_for('update_info') }}">update info</a>
+	    </li>
+	</ul>	
+	
     </div>
     <div class="col-sm-8">
 	<table class="table">
 	    <tr>
+		<td>email</td>
+		<td>{{ current_user.email }}<td>
+	    </tr>
+	    <tr>
 		<td>sex</td>
-		<td>{{ current_user.sex }}</td>
+		<td>{{ current_user.sex }}<td>
 	    </tr>
 	    <tr>
 		<td>birthday</td>
-		<td>{{ current_user.birthday }}</td>
-	    </tr>	    
-	    <tr>
-		<td>email</td>
-		<td>{{ current_user.email }}</td>
+		<td>{{ current_user.birthday }}<td>
 	    </tr>
 	    <tr>
 		<td>country</td>
-		<td>{{ current_user.country }}</td>
+		<td>{{ current_user.coutry }}<td>
 	    </tr>
 	    <tr>
 		<td>address</td>
-		<td>{{ current_user.address }}</td>
+		<td>{{ current_user.address }}<td>
 	    </tr>
-	    <tr>
-		<td>weibo</td>
-		<td>{{ current_user.weibo }}</td>
-	    </tr>
-	    <tr>
-		<td>weixin</td>
-		<td>{{ current_user.weixin }}</td>
-	    </tr>
+
 	    <tr>
 		<td>chinese university</td>
-		<td>{{ current_user.chinese_university }}</td>
+		<td>{{ current_user.chinese_university }}<td>
 	    </tr>
 	    <tr>
 		<td>paristech school</td>
-		<td>{{ current_user.paristech_school }}</td>
+		<td>{{ current_user.paristech_school }}<td>
 	    </tr>
 	    <tr>
 		<td>paristech entrance year</td>
-		<td>{{ current_user.paristech_entrance_year }}</td>
+		<td>{{ current_user.paristech_entrance_year }}<td>
 	    </tr>
 	    <tr>
-		<td>domain in China</td>
-		<td>{{ current_user.domain_china }}</td>
+		<td>employer</td>
+		<td>{{ current_user.employer }}</td>
 	    </tr>	    
 	    <tr>
-		<td>domain in France</td>
-		<td>{{ current_user.domain_france }}</td>
+		<td>domain china</td>
+		<td>{{ current_user.domain_china|default('', true) }}<td>
 	    </tr>
+	    <tr>
+		<td>domain france</td>
+		<td>{{ current_user.domain_france|default('', true) }}<td>
+	    </tr>
+
+	    <tr>
+		<td>weibo</td>
+		<td>{{ current_user.weibo }}<td>
+	    </tr>
+	    <tr>
+		<td>weixin</td>
+		<td>{{ current_user.weixin }}<td>
+	    </tr>
+	    <tr>
+		<td>phone</td>
+		<td>{{ current_user.phone }}</td>
+	    </tr>	    
 	</table>
     </div>
 {% endblock content %}

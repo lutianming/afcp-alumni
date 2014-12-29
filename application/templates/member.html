@@ -8,7 +8,7 @@
 		<td>{{ member.lastname }} {{ member.firstname }}</td>
 	    </tr>
 	    <tr>
-		<td>chinesename</td>
+		<td>chinese name</td>
 		<td>{{ member.chinesename }}</td>
 	    </tr>
 	    <tr>
@@ -19,6 +19,23 @@
 		<td>country</td>
 		<td>{{ member.coutry }}<td>
 	    </tr>
+
+	    <tr>
+		<td>chinese university</td>
+		<td>{{ member.chinese_university }}<td>
+	    </tr>
+	    <tr>
+		<td>paristech school</td>
+		<td>{{ member.paristech_school }}<td>
+	    </tr>
+	    <tr>
+		<td>paristech entrance year</td>
+		<td>{{ member.paristech_entrance_year }}<td>
+	    </tr>
+	    <tr>
+		<td>employer</td>
+		<td>{{ member.employer }}</td>
+	    </tr>	    
 	    <tr>
 		<td>domain china</td>
 		<td>{{ member.domain_china|default('', true) }}<td>
@@ -26,6 +43,11 @@
 	    <tr>
 		<td>domain france</td>
 		<td>{{ member.domain_france|default('', true) }}<td>
+	    </tr>
+	    
+	    <tr>
+		<td>birthday</td>
+		<td>{{ member.birthday }}<td>
 	    </tr>
 	    <tr>
 		<td>address</td>
@@ -44,20 +66,8 @@
 		<td>{{ member.weixin }}<td>
 	    </tr>
 	    <tr>
-		<td>chinese university</td>
-		<td>{{ member.chinese_university }}<td>
-	    </tr>
-	    <tr>
-		<td>paristech school</td>
-		<td>{{ member.paristech_school }}<td>
-	    </tr>
-	    <tr>
-		<td>paristech entrance year</td>
-		<td>{{ member.paristech_entrance_year }}<td>
-	    </tr>
-	    <tr>
-		<td>employer</td>
-		<td>{{ member.employer }}</td>
+		<td>phone</td>
+		<td>{{ member.phone }}</td>
 	    </tr>
 	</table>
     </div>
