@@ -4,7 +4,7 @@ settings.py
 
 Configuration for Flask app
 
-Important: Place your keys in the secret_keys.py module, 
+Important: Place your keys in the secret_keys.py module,
            which should be kept out of version control.
 
 """
@@ -18,6 +18,7 @@ class Config(object):
     # Flask-Cache settings
     CACHE_TYPE = 'gaememcached'
     ADMINS = ['lutianming1005@gmail']
+    SENDER = "lutianming1005@gmail"
     CHINA_U = [
         'Peking University',
         'Tsinghua University',
@@ -44,7 +45,7 @@ class Config(object):
         'ESPCI ParisTech',
         'MINES ParisTech',
         'AgroParisTech']
-    
+
 class Development(Config):
     DEBUG = True
     # Flask-DebugToolbar settings

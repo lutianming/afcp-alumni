@@ -50,4 +50,9 @@ class ResetPasswordModel(ndb.Model):
     email = ndb.StringProperty()
     expire_time = ndb.DateTimeProperty()
 
-
+    
+class ChangeEmailModel(ndb.Model):
+    email = ndb.StringProperty()
+    new_email = ndb.StringProperty()
+    expire_time = ndb.DateTimeProperty()
+    

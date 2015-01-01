@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
+
+{% block content %}
+    <form method="post" class="form-horizontal" action="{{ url_for('change_email') }}">
+	{{ form.hidden_tag()}}
+	{{ render_field(form.new_email) }}
+	{{ render_field(form.confirm_email) }}
+	<div class="col-sm-offset-2">
+	    <input class="btn" type="submit" value="change email">
+	</div>
+    </form>
+{% endblock content %}

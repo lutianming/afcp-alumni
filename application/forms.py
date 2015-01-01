@@ -10,17 +10,20 @@ See: http://flask.pocoo.org/docs/patterns/wtforms/
 
 from flaskext import wtf
 from flaskext.wtf import validators
-from wtforms.ext.appengine.ndb import model_form
 
 
 def validate_password(form, field):
     password = field.data
     if len(password) < 6:
         raise validators.ValidationError("password should have no less than 6 letters")
-    
+
 def validate_confirm_password(form, field):
     if form.new_password.data != field.data:
         raise validators.ValidationError("password not confirmed")
+
+def validate_confirm_email(form, field):
+    if form.new_email.data != field.data:
+        raise validators.ValidationError("email not confirmed")
 
 def validate_new_password(form, field):
     if form.old_password.data == field:
@@ -38,7 +41,7 @@ class LoginForm(wtf.Form):
 class ForgetPasswordForm(wtf.Form):
     email = wtf.TextField('email',
                           validators=[validators.Email()])
-    
+
 class ResetPasswordForm(wtf.Form):
     new_password = wtf.PasswordField('new password',
                                      validators=[validators.Required(),
@@ -46,11 +49,11 @@ class ResetPasswordForm(wtf.Form):
     confirm_password = wtf.PasswordField('comfirm new passowd',
                                          validators=[validators.Required(),
                                                      validate_confirm_password])
-    
+
 class SearchForm(wtf.Form):
     q = wtf.TextField('query', validators=[validators.Required()])
 
-    
+
 class ChangePasswordForm(wtf.Form):
     old_password = wtf.PasswordField('old password',
                                      validators=[validators.Required()])
@@ -62,6 +65,19 @@ class ChangePasswordForm(wtf.Form):
                                          validators=[validators.Required(),
                                                      validate_confirm_password])
 
+
+class ChangeEmailForm(wtf.Form):
+    new_email = wtf.TextField('new email',
+                              validators=[validators.Email()])
+    confirm_email = wtf.TextField('confirm email',
+                                  validators=[validate_confirm_email])
+
+class ActiveEmailForm(wtf.Form):
+    old_email = wtf.TextField('email',
+                              validators=[validators.Required(),
+                                          validators.Email()])
+    password = wtf.PasswordField('password',
+                                 validators=[validators.Required()])
 
 class MemberInfoForm(wtf.Form):
     sex = wtf.SelectField('sex',
