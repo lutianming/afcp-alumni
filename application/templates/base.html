@@ -9,45 +9,44 @@
     {% set bootswatch_version = '3.3.1' %}
     {% set bootswatch_theme = 'readable' %}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-    <title>{% block title%}AFCP-Alumni{% endblock %}</title>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/{{ bootstrap_version }}/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/{{ awesome_version }}/css/font-awesome.min.css" rel="stylesheet" >
-    <link href="//maxcdn.bootstrapcdn.com/bootswatch/{{ bootswatch_version }}/{{ bootswatch_theme }}/bootstrap.min.css" rel="stylesheet" >
+    <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+	<title>{% block title%}AFCP-Alumni{% endblock %}</title>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/{{ bootstrap_version }}/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/{{ awesome_version }}/css/font-awesome.min.css" rel="stylesheet" >
+	<link href="//maxcdn.bootstrapcdn.com/bootswatch/{{ bootswatch_version }}/{{ bootswatch_theme }}/bootstrap.min.css" rel="stylesheet" >
 
-    <style>  </style> <!-- Bootstrap -->
-    <link href="/static/css/main.css" rel="stylesheet" />
-    <link rel="shortcut icon" href="/static/img/favicon.ico" />
-    {% block style_block %}{# page-specific CSS #}{% endblock %}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/{{ modernizer_version }}/modernizr.min.js"></script>{# Modernizr must be here, above body tag. #}
-    {% block head_script %}{# defer-incapable JS block #}{% endblock %}
-</head>
-<body>
+	<style>  </style> <!-- Bootstrap -->
+	<link href="/static/css/main.css" rel="stylesheet" />
+	<link rel="shortcut icon" href="/static/img/favicon.ico" />
+	{% block style_block %}{# page-specific CSS #}{% endblock %}
+	<script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/{{ modernizer_version }}/modernizr.min.js"></script>{# Modernizr must be here, above body tag. #}
+	{% block head_script %}{# defer-incapable JS block #}{% endblock %}
+    </head>
+    <body>
 
         {% include 'includes/nav.html' %} {# pull in navbar #}
+	<div class="container" id="maincontent">
+            {% include 'includes/flash_message.html' %} {# page-level feedback notices #}
+            <div id="body_content">
+		{% block content %}{# main content area #}{% endblock %}
+            </div>
+	</div><!-- /container -->
+	<footer>
+            <div id="footer" class="container">
+		{% block footer %}{% endblock %}
+            </div><!-- /footer -->
+	</footer>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/{{ jquery_version }}/jquery.min.js"></script>
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/{{ jquery_ui_version }}/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/{{ jquery_ui_version }}/jquery-ui.min.js"></script>
 
-    <div class="container" id="maincontent">
-        {% include 'includes/flash_message.html' %} {# page-level feedback notices #}
-        <div id="body_content">
-            {% block content %}{# main content area #}{% endblock %}
-        </div>
-    </div><!-- /container -->
-    <footer>
-        <div id="footer" class="container">
-            {% block footer %}{% endblock %}
-        </div><!-- /footer -->
-    </footer>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/{{ jquery_version }}/jquery.min.js"></script>
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/{{ jquery_ui_version }}/themes/smoothness/jquery-ui.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/{{ jquery_ui_version }}/jquery-ui.min.js"></script>
-    
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/{{ bootstrap_version }}/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/parsley.js/{{ parsley_version }}/parsley-standalone.min.js"></script>
-    <script src="/static/js/main.js"></script>
-    {% block tail_script %}{# defer-capable JS block #}{% endblock %}
-    {{ profiler_includes|safe }}
-</body>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/{{ bootstrap_version }}/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/parsley.js/{{ parsley_version }}/parsley-standalone.min.js"></script>
+	<script src="/static/js/main.js"></script>
+	{% block tail_script %}{# defer-capable JS block #}{% endblock %}
+	{{ profiler_includes|safe }}
+    </body>
 </html>
