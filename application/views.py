@@ -223,6 +223,7 @@ def update_info():
     return render_template('update_info.html', form=form)
 
 @app.route('/members/')
+@login_required
 def members():
     page_size = 20
     page = int(request.args.get('page', 0))
@@ -239,6 +240,7 @@ def members():
                            pager_url=pager_url)
 
 @app.route('/member/<urlsafe>')
+@login_required
 def member(urlsafe):
     key = ndb.Key(urlsafe=urlsafe)
     member = key.get()
@@ -246,6 +248,7 @@ def member(urlsafe):
 
 
 @app.route('/search')
+@login_required
 def search():
     page_size = 20
     page = int(request.args.get('page', 0))
