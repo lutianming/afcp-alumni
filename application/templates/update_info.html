@@ -5,7 +5,6 @@
     <form class="form-horizontal" method="post" action="{{ url_for('update_info') }}">
 	<fieldset>
 	    {{ form.hidden_tag() }}
-	    {{ render_field(form.email)}}
 	    {{ render_field(form.sex) }}
 	    {{ render_field(form.lastname) }}
 	    {{ render_field(form.firstname) }}
@@ -31,9 +30,9 @@
     <script>
      $('#birthday').datepicker({
 	 yearRange: "1970:c",
-	 dateFormat: "yy-mm-dd",	 
+	 dateFormat: "yy-mm-dd",
 	 changeMonth: true,
-	 changeYear: true	 
+	 changeYear: true
      })
-    </script>        
+    </script>
 {% endblock tail_script %}

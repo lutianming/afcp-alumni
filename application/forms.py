@@ -93,8 +93,7 @@ class MemberInfoForm(wtf.Form):
                                                   ('france', 'france')],
                               validators=[validators.Required()])
     address = wtf.TextField('address')
-    email = wtf.TextField('email',
-                          validators=[validators.Required(), validators.Email()])
+
     weibo = wtf.TextField('weibo')
     weixin = wtf.TextField('weixin')
     phone = wtf.TextField('phone')

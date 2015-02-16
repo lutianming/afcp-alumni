@@ -210,6 +210,10 @@ def update_info():
     form = MemberInfoForm(request.form, obj=current_user)
     if request.method == 'POST' and form.validate():
         for field in form:
+            #need to comfirn that the field is not email or password
+            #which should be changed by other methods
+            if field.name == 'email' or field.name == 'password':
+                continue
             setattr(current_user, field.name, field.data)
         current_user.put()
         update_document(current_user)

@@ -38,13 +38,14 @@ def update_document(member):
     index = search.Index(name='members')
     index.put(document)
 
-    
+
 class NdbModelView(BaseModelView):
     can_create = True
     can_edit = True
     can_delete = True
 
     list_template = 'admin/model/member_list_template.html'
+
     column_list = ['email', 'lastname', 'firstname', 'chinesename',
                    'chinese_university', 'paristech_school',
                    'paristech_entrance_year',
@@ -58,9 +59,10 @@ class NdbModelView(BaseModelView):
                               'paristech_entrance_year']
     # column_filters = ('lastname', 'firstname')
     page_size = 20
+
     def is_accessible(self):
         return current_user.is_authenticated() and current_user.role == 'ADMIN'
-    
+
     def get_pk_value(self, model):
         return model.key.urlsafe()
 
@@ -72,7 +74,7 @@ class NdbModelView(BaseModelView):
 
     def init_search(self):
         return True
-    
+
     def get_list(self, page, sort_column, sort_desc,
                  search_string, filters, execute=True):
         if sort_column:
@@ -85,7 +87,7 @@ class NdbModelView(BaseModelView):
             sort_options = search.SortOptions(expressions=[expr])
         else:
             sort_options = None
-            
+
         if page is None:
             page = 0
         index = search.Index(name='members')
@@ -101,7 +103,7 @@ class NdbModelView(BaseModelView):
             query = search.Query(query_string='',
                                  options=options)
         result = index.search(query)
-        
+
         count = result.number_found
         keys = []
 
@@ -120,7 +122,7 @@ class NdbModelView(BaseModelView):
     def create_model(self, form):
         member = MemberModel()
         return self.update_model(form, member)
-    
+
     def update_model(self, form, model):
         for field in form:
             setattr(model, field.name, field.data)
@@ -128,7 +130,7 @@ class NdbModelView(BaseModelView):
         model.put()
         update_document(model)
         return True
-    
+
     def delete_model(self, model):
         index = search.Index(name='members')
         index.delete(model.key.urlsafe())
@@ -157,7 +159,7 @@ class NdbModelView(BaseModelView):
         response.headers["Content-Disposition"] = "attachment; filename={0}".format(filename)
         output.close()
         return response
-    
+
     @expose('/invite/', methods=('GET', 'POST'))
     def invite(self):
         id = get_mdict_item_or_list(request.args, 'id')
@@ -173,16 +175,16 @@ class NdbModelView(BaseModelView):
         for member in members:
             self._invite(member)
         flash('invitations sent')
-        
+
         return redirect(url_for('members.index_view'))
-        
+
     def _invite(self, member):
         password = gen_password()
         sender = 'lutianming1005@gmail.com'
 
         member.password = password
         member.put()
-            
+
         message = mail.EmailMessage(sender=sender)
         message.to = member.email
         message.subject = "invitation from AFCP Alumni"
@@ -207,7 +209,7 @@ class NdbModelView(BaseModelView):
             update_document(member)
         flash('all members reindexed')
         return redirect(url_for('members.index_view'))
-    
+
 def gen_password(length=6):
     password = ""
     alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -216,4 +218,3 @@ def gen_password(length=6):
         index = random.randrange(l)
         password += alphabet[index]
     return password
-    
