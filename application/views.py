@@ -274,6 +274,11 @@ def search():
                            pager_url=pager_url,
                            q=q)
 
+@app.errorhandler(401)
+def unauthorized(e):
+    flash("unauthorized, you need to login first", category="danger")
+    return render_template("index.html"), 401
+
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
